@@ -159,7 +159,8 @@ input::placeholder, textarea::placeholder {
   margin-bottom: 1.35rem;
   text-indent: 0;
 }
-.reading-text p:first-of-type::first-letter {
+.reading-text p:first-of-type:not(.rubric)::first-letter,
+.reading-text p.drop-cap::first-letter {
   font-family: 'Cormorant Garamond', serif;
   font-size: 3.5em;
   float: left;
@@ -178,6 +179,11 @@ input::placeholder, textarea::placeholder {
   letter-spacing: 0.02em;
   border-bottom: 1px solid rgba(201,168,76,0.15);
   padding-bottom: 0.4rem;
+}
+.reading-text p.rubric {
+  font-style: italic;
+  color: var(--text-secondary);
+  font-size: 0.95em;
 }
 
 /* ── Gold-trimmed book page ── */

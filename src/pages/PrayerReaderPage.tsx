@@ -78,8 +78,21 @@ export default function PrayerReaderPage() {
 
     // Apply highlights to the full text (so multi-line selections match)
     const highlighted = applyHighlightsToPrayer(prayer.text, highlights);
-    // Then split into paragraphs for rendering
-    return highlighted.split('\n').map(line => `<p>${line}</p>`).join('');
+    // Italicize rubrics (movement instructions); mark first non-rubric para for drop-cap
+    let dropCapAssigned = false;
+    return highlighted.split('\n').map(line => {
+      const plain = line.replace(/<[^>]+>/g, '').trim();
+      if (!plain) return `<p>${line}</p>`;
+      const isRubric =
+        plain.endsWith(':') ||
+        (plain === plain.toUpperCase() && /[A-Z]/.test(plain));
+      if (isRubric) return `<p class="rubric">${line}</p>`;
+      if (!dropCapAssigned) {
+        dropCapAssigned = true;
+        return `<p class="drop-cap">${line}</p>`;
+      }
+      return `<p>${line}</p>`;
+    }).join('');
   }, [prayer.id, prayer.text, allAnnotations, getAnnotationsForDocument]);
 
   return (

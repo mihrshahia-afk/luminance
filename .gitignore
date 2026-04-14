@@ -25,3 +25,7 @@ dist-ssr
 
 .vercel
 .env
+
+# Ingestion raw sources — large, regeneratable
+scripts/*.pdf
+scripts/release-the-sun*.txt

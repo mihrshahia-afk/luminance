@@ -936,6 +936,41 @@ export const bookConfigs: BookConfig[] = [
       { id: 'selections-writings-bab-ch8', title: 'Key to Passages Translated by Shoghi Effendi', urlSegment: 'ch8' },
     ],
   },
+
+  // ═══════════════════════════════════════════════════════════════════════════
+  // SECONDARY LITERATURE
+  // ═══════════════════════════════════════════════════════════════════════════
+  {
+    id: 'release-the-sun',
+    title: 'Release the Sun',
+    author: 'William Sears',
+    category: 'other',
+    description: 'A narrative history of the early Bábí dispensation — from the heralding of the Báb in 1844 through His martyrdom in 1850 — written for a Western audience. Sears retells the story through the eyes of its participants, drawing on primary sources to dramatize the dawn of a new religious cycle.',
+    urlPath: 'release-the-sun',
+    seedChapters: [
+      { id: 'release-the-sun-foreword', title: 'Foreword', urlSegment: 'foreword' },
+      { id: 'release-the-sun-prologue', title: 'Prologue', urlSegment: 'prologue' },
+      { id: 'release-the-sun-1', title: '1. The Promise of the Messiah', urlSegment: '1' },
+      { id: 'release-the-sun-2', title: '2. The Search Begins', urlSegment: '2' },
+      { id: 'release-the-sun-3', title: '3. The Promise Is Fulfilled', urlSegment: '3' },
+      { id: 'release-the-sun-4', title: '4. The Pilgrimage and the Proclamation', urlSegment: '4' },
+      { id: 'release-the-sun-5', title: '5. The Persecution Begins', urlSegment: '5' },
+      { id: 'release-the-sun-6', title: '6. The Gentle Arrest', urlSegment: '6' },
+      { id: 'release-the-sun-7', title: "7. The Enchantment of the King's Messenger", urlSegment: '7' },
+      { id: 'release-the-sun-8', title: '8. The Avenging Hand of God', urlSegment: '8' },
+      { id: 'release-the-sun-9', title: '9. The Kindly Governor', urlSegment: '9' },
+      { id: 'release-the-sun-10', title: "10. The King's Summons", urlSegment: '10' },
+      { id: 'release-the-sun-11', title: '11. The Tumult in Tabríz', urlSegment: '11' },
+      { id: 'release-the-sun-12', title: '12. The High Stone Prison', urlSegment: '12' },
+      { id: 'release-the-sun-13', title: '13. The Scourging at Tabríz', urlSegment: '13' },
+      { id: 'release-the-sun-14', title: '14. The Massacre at Fort Shaykh Ṭabarsí', urlSegment: '14' },
+      { id: 'release-the-sun-15', title: '15. A Wonder Among Women', urlSegment: '15' },
+      { id: 'release-the-sun-16', title: '16. The Death of the Wisest Persian', urlSegment: '16' },
+      { id: 'release-the-sun-17', title: '17. The Seven Heroes of Ṭihrán', urlSegment: '17' },
+      { id: 'release-the-sun-18', title: '18. The Dawn and the Sun', urlSegment: '18' },
+      { id: 'release-the-sun-19', title: '19. The Martyrdom of the Báb', urlSegment: '19' },
+    ],
+  },
 ];
 
 export function getBookConfig(id: string): BookConfig | undefined {

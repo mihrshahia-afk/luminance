@@ -30,4 +30,5 @@ export const bookCovers: Record<string, string> = {
   'decisive-hour': '/covers/decisive-hour.jpg',
   'bahai-administration': '/covers/bahai-administration.jpg',
   'selections-writings-bab': '/covers/selections-writings-bab.jpg',
+  'release-the-sun': '/covers/release-the-sun.jpg',
 };

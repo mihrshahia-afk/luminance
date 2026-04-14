@@ -7,9 +7,14 @@ import { bookConfigs } from '../data/bookConfig';
    1. LITERATURE — title LEFT, double doors in CENTRE
    ═══════════════════════════════════════════════════════════════ */
 
-const coverList = bookConfigs
-  .filter(b => bookCovers[b.id])
-  .map(b => ({ id: b.id, src: bookCovers[b.id], title: b.title }));
+// Every book appears in the carousel. Books with a cover image use it; books
+// without fall back to a stylized title/author card (same look as BookReader).
+const coverList = bookConfigs.map(b => ({
+  id: b.id,
+  src: bookCovers[b.id] || null,
+  title: b.title,
+  author: b.author,
+}));
 
 export function LiteratureCard({ label }: { label: string }) {
   const [hovered, setHovered] = useState(false);
@@ -26,10 +31,25 @@ export function LiteratureCard({ label }: { label: string }) {
         <div className={`flex gap-1.5 absolute inset-0 items-center px-2 ${hovered ? 'lit-carousel-scroll' : ''}`}
           style={{ width: 'max-content' }}>
           {[...coverList, ...coverList].map((c, i) => (
-            <img key={i} src={c.src} alt={c.title}
-              className="h-[80%] w-auto rounded-sm object-cover"
-              style={{ opacity: hovered ? 1 : 0, transition: `opacity 0.4s ease ${i * 0.015}s` }}
-              loading="lazy" />
+            c.src ? (
+              <img key={i} src={c.src} alt={c.title}
+                className="h-[80%] w-auto rounded-sm object-cover"
+                style={{ opacity: hovered ? 1 : 0, transition: `opacity 0.4s ease ${i * 0.015}s` }}
+                loading="lazy" />
+            ) : (
+              <div key={i}
+                className="h-[80%] rounded-sm flex flex-col items-center justify-center text-center px-3 py-4 shrink-0"
+                style={{
+                  aspectRatio: '2 / 3',
+                  background: 'linear-gradient(145deg, var(--bg-card), rgba(201,168,76,0.04))',
+                  border: '1.5px solid rgba(201,168,76,0.3)',
+                  opacity: hovered ? 1 : 0,
+                  transition: `opacity 0.4s ease ${i * 0.015}s`,
+                }}>
+                <p className="text-[0.45rem] tracking-[0.2em] uppercase text-gold/60 font-body m-0 mb-2 leading-tight">{c.author}</p>
+                <h4 className="font-display text-[0.85rem] font-semibold text-heading leading-tight m-0">{c.title}</h4>
+              </div>
+            )
           ))}
         </div>
       </div>

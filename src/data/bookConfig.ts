@@ -915,6 +915,56 @@ export const bookConfigs: BookConfig[] = [
     ],
   },
 
+  {
+    id: 'bahai-sacred-writings',
+    title: "Bahá'í Sacred Writings",
+    author: "Bahá'u'lláh & 'Abdu'l-Bahá",
+    category: 'bahaullah',
+    description: "A comprehensive compilation of selections from the Writings of Bahá'u'lláh and 'Abdu'l-Bahá, arranged thematically into two parts — spanning God and His Manifestations, spiritual reality, the Bahá'í life, world peace, and the Covenant.",
+    urlPath: 'bahaullah/bahai-sacred-writings',
+    seedChapters: [
+      { id: 'bahai-sacred-writings-2', title: 'Part I — Writings of Bahá\'u\'lláh', urlSegment: '2' },
+      { id: 'bahai-sacred-writings-3', title: 'Part II — Writings of \'Abdu\'l-Bahá', urlSegment: '3' },
+    ],
+  },
+
+  {
+    id: 'tablet-auguste-forel',
+    title: 'Tablet to Dr. Auguste Forel',
+    author: "'Abdu'l-Bahá",
+    category: 'abdulbaha',
+    description: "A profound philosophical tablet addressed to the Swiss entomologist and psychiatrist Auguste Forel in 1921. 'Abdu'l-Bahá responds to Forel's questions about the nature of divinity, the soul, immortality, and the harmony of science and religion.",
+    urlPath: 'abdul-baha/tablet-auguste-forel',
+    seedChapters: [
+      { id: 'tablet-auguste-forel-1', title: 'Tablet to Dr. Auguste Forel', urlSegment: '1' },
+    ],
+  },
+
+  {
+    id: 'tablets-hague-abdul-baha',
+    title: 'Tablets to The Hague',
+    author: "'Abdu'l-Bahá",
+    category: 'abdulbaha',
+    description: "Two letters written by 'Abdu'l-Bahá in 1919–1920 in response to the Executive Committee of the Central Organization for a Durable Peace. These tablets set out the Bahá'í teachings for world peace at the close of the First World War.",
+    urlPath: 'abdul-baha/tablets-hague-abdul-baha',
+    seedChapters: [
+      { id: 'tablets-hague-abdul-baha-2', title: 'First Tablet to The Hague — 17 December 1919', urlSegment: '2' },
+      { id: 'tablets-hague-abdul-baha-3', title: 'Second Tablet to The Hague — 1 July 1920', urlSegment: '3' },
+    ],
+  },
+
+  {
+    id: 'twelve-table-talks-abdul-baha',
+    title: "Twelve Table Talks Given by 'Abdu'l-Bahá in 'Akká",
+    author: "'Abdu'l-Bahá",
+    category: 'abdulbaha',
+    description: "A companion to Some Answered Questions, this collection records twelve informal table talks delivered by 'Abdu'l-Bahá during His years of imprisonment in 'Akká. The talks address themes ranging from the spiritual world to prophetic fulfilment.",
+    urlPath: 'abdul-baha/twelve-table-talks-abdul-baha',
+    seedChapters: [
+      { id: 'twelve-table-talks-abdul-baha-1', title: 'Twelve Table Talks', urlSegment: '1' },
+    ],
+  },
+
   // ═══════════════════════════════════════════════════════════════════════════
   // THE BÁB
   // ═══════════════════════════════════════════════════════════════════════════

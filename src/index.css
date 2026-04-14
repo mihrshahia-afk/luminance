@@ -266,6 +266,16 @@ input::placeholder, textarea::placeholder {
   80%  { opacity: 1; }
   100% { transform: translateZ(0) scale(4); opacity: 0; }
 }
+/* Phones: the 4x scale overshoots the viewport and feels like a zoom-to-pixels.
+   Scale-down target so the book grows to fit the screen, then fades. */
+@media (max-width: 640px) {
+  .book-opening-zoom { animation: bookZoomInMobile 2.2s linear forwards; }
+  @keyframes bookZoomInMobile {
+    0%   { transform: translateZ(0) scale(1);   opacity: 1; }
+    80%  { opacity: 1; }
+    100% { transform: translateZ(0) scale(1.8); opacity: 0; }
+  }
+}
 
 /* Cover flips open — GPU fast, no intermediate steps */
 .book-cover-flip {

@@ -96,7 +96,7 @@ export default function PrayerReaderPage() {
   }, [prayer.id, prayer.text, allAnnotations, getAnnotationsForDocument]);
 
   return (
-    <div className="flex h-screen">
+    <div className="flex h-screen" style={{ height: '100dvh' }}>
       <ReadingProgress containerRef={scrollRef} />
       <div className="flex-1 overflow-y-auto" ref={scrollRef}>
         <div className="max-w-2xl mx-auto px-4 sm:px-8 py-6 sm:py-10 paper-texture">

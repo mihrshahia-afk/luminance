@@ -458,7 +458,7 @@ export default function BookReaderPage() {
     : 'page-turn-in';
 
   return (
-    <div className="flex h-screen relative">
+    <div className="flex h-screen relative" style={{ height: '100dvh' }}>
       <ReadingProgress containerRef={scrollRef} />
 
       {/* Chapter sidebar */}

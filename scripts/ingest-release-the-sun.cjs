@@ -10,7 +10,7 @@ const fs = require('fs');
 const path = require('path');
 
 const TXT = path.join(__dirname, 'release-the-sun.txt');
-const OUT_JSON = path.join(__dirname, '..', 'src', 'data', 'bookContent.json');
+const OUT_JSON = path.join(__dirname, '..', 'src', 'data', 'books', 'release-the-sun.json');
 
 const raw = fs.readFileSync(TXT, 'utf8');
 const lines = raw.split('\n');
@@ -242,17 +242,17 @@ for (let i = 0; i < chapterStarts.length; i++) {
   });
 }
 
-// ─── Merge into bookContent.json ──────────────────────────────────────────────
-const db = JSON.parse(fs.readFileSync(OUT_JSON, 'utf8'));
+// ─── Write per-book JSON ──────────────────────────────────────────────────────
+const db = fs.existsSync(OUT_JSON) ? JSON.parse(fs.readFileSync(OUT_JSON, 'utf8')) : {};
 
-db['release-the-sun/__chapters'] = sections.map(s => ({
+db.__chapters = sections.map(s => ({
   id: `release-the-sun-${s.urlSegment}`,
   title: s.title,
   urlSegment: s.urlSegment,
 }));
 
 for (const s of sections) {
-  db[`release-the-sun/${s.urlSegment}`] = { title: s.title, content: s.content };
+  db[s.urlSegment] = { title: s.title, content: s.content };
 }
 
 fs.writeFileSync(OUT_JSON, JSON.stringify(db));

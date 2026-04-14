@@ -7,10 +7,10 @@
 const fs = require('fs');
 const path = require('path');
 
-const JSON_PATH = path.join(__dirname, '..', 'src', 'data', 'bookContent.json');
+const JSON_PATH = path.join(__dirname, '..', 'src', 'data', 'books', 'release-the-sun.json');
 const db = JSON.parse(fs.readFileSync(JSON_PATH, 'utf8'));
 
-const KEYS = Object.keys(db).filter(k => k.startsWith('release-the-sun/') && !k.endsWith('__chapters'));
+const KEYS = Object.keys(db).filter(k => k !== '__chapters');
 
 // ─── Chapter opening fixes ───────────────────────────────────────────────────
 // The PDF sets the first few words of each chapter in small caps, which pdftotext
@@ -238,3 +238,4 @@ for (const k of KEYS) {
 fs.writeFileSync(JSON_PATH, JSON.stringify(db));
 console.log(`Fixed ${totalFfReplaced} replacement chars across ${KEYS.length} sections`);
 console.log(`Rejoined ${totalRejoined} mid-sentence paragraph breaks`);
+console.log(`Wrote ${JSON_PATH}`);

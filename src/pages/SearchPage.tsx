@@ -6,8 +6,6 @@ import { prayers } from '../data/prayers';
 import { letterIndex } from '../data/letterIndex';
 import { getLettersAsUHJ } from '../data/letterFetcher';
 
-// ─── 9-pointed star ──────────────────────────────────────────────────────────
-
 function NineStar({ className = '' }: { className?: string }) {
   return (
     <svg viewBox="0 0 100 100" className={className} fill="currentColor">
@@ -15,8 +13,6 @@ function NineStar({ className = '' }: { className?: string }) {
     </svg>
   );
 }
-
-// ─── Themes ───────────────────────────────────────────────────────────────────
 
 const THEMES = {
   aurora: {
@@ -27,7 +23,6 @@ const THEMES = {
     subtitle: 'text-[#7BAFC4]',
     inputBg: 'bg-white',
     inputText: 'text-[#1a1a1a]',
-    inputBorder: 'border-transparent focus:border-[#C9A84C]',
     iconColor: 'text-[#9CA3AF]',
     placeholderColor: 'text-[#9CA3AF]',
     activeFilter: 'bg-white text-[#083D54] font-semibold shadow-sm',
@@ -42,7 +37,6 @@ const THEMES = {
     subtitle: 'text-[#6B7280]',
     inputBg: 'bg-white border border-[#C9A84C]/50 focus-within:border-[#C9A84C]',
     inputText: 'text-[#2D2D2D]',
-    inputBorder: 'border-transparent',
     iconColor: 'text-[#C9A84C]',
     placeholderColor: 'text-[#B0A090]',
     activeFilter: 'bg-[#083D54] text-white font-semibold shadow-sm',
@@ -57,7 +51,6 @@ const THEMES = {
     subtitle: 'text-[#6B8AA0]',
     inputBg: 'bg-white/8 border border-white/15 backdrop-blur-md',
     inputText: 'text-white',
-    inputBorder: 'border-transparent focus:border-[#C9A84C]/60',
     iconColor: 'text-white/40',
     placeholderColor: 'text-white/35',
     activeFilter: 'bg-[#C9A84C] text-[#060D1C] font-semibold shadow-sm',
@@ -69,8 +62,6 @@ const THEMES = {
 type ThemeKey = keyof typeof THEMES;
 type Source = 'all' | 'books' | 'prayers' | 'letters';
 
-// ─── Animated placeholder suggestions ────────────────────────────────────────
-
 const suggestions = [
   'justice', 'unity', 'love', 'gratitude', 'patience',
   'wisdom', 'prayer', 'service', 'light', 'peace',
@@ -79,23 +70,19 @@ const suggestions = [
   'forgiveness', 'steadfastness', 'beauty', 'knowledge', 'hope',
 ];
 
-// ─── Highlight helper ─────────────────────────────────────────────────────────
-
 function highlight(text: string, query: string): string {
   if (!query.trim()) return text;
   const escaped = query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-  return text.replace(new RegExp(`(${escaped})`, 'gi'), '<mark class="bg-[#C9A84C]/25 text-inherit rounded px-0.5">$1</mark>');
+  return text.replace(new RegExp(`(${escaped})`, 'gi'), '<mark class="bg-gold/25 text-inherit rounded px-0.5">$1</mark>');
 }
 
 function getExcerpt(text: string, query: string, radius = 80): string {
   const idx = text.toLowerCase().indexOf(query.toLowerCase());
-  if (idx === -1) return text.slice(0, radius * 2) + '…';
+  if (idx === -1) return text.slice(0, radius * 2) + '\u2026';
   const start = Math.max(0, idx - radius);
   const end = Math.min(text.length, idx + query.length + radius);
-  return (start > 0 ? '…' : '') + text.slice(start, end) + (end < text.length ? '…' : '');
+  return (start > 0 ? '\u2026' : '') + text.slice(start, end) + (end < text.length ? '\u2026' : '');
 }
-
-// ─── Search result types ──────────────────────────────────────────────────────
 
 interface SearchResult {
   type: 'book' | 'prayer' | 'letter';
@@ -105,8 +92,6 @@ interface SearchResult {
   excerpt: string;
   link: string;
 }
-
-// ─── Main Component ───────────────────────────────────────────────────────────
 
 export default function SearchPage() {
   const [query, setQuery] = useState('');
@@ -118,7 +103,6 @@ export default function SearchPage() {
 
   const t = THEMES[theme];
 
-  // Cycle placeholder suggestions
   useEffect(() => {
     const interval = setInterval(() => {
       setSuggestionVisible(false);
@@ -131,22 +115,25 @@ export default function SearchPage() {
   }, []);
 
   const results = useMemo<SearchResult[]>(() => {
-    if (query.length < 2) return [];
-    const q = query.toLowerCase();
+    const trimmed = query.trim();
+    if (trimmed.length < 2) return [];
+    const q = trimmed.toLowerCase();
+
+    // Build a regex that matches the query as a whole word (word boundary on both sides)
+    // This ensures "families" only matches texts containing "families", not just "fa"
+    const escaped = q.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    const wordRegex = new RegExp(`\\b${escaped}`, 'i');
+
     const hits: SearchResult[] = [];
 
     if (source === 'all' || source === 'books') {
       for (const book of books) {
         for (const ch of book.chapters) {
           const plain = ch.content.replace(/<[^>]+>/g, '');
-          if (plain.toLowerCase().includes(q)) {
+          if (wordRegex.test(plain)) {
             hits.push({
-              type: 'book',
-              id: `${book.id}-${ch.id}`,
-              title: book.title,
-              subtitle: ch.title,
-              excerpt: getExcerpt(plain, query),
-              link: `/books/${book.id}/${ch.id}`,
+              type: 'book', id: `${book.id}-${ch.id}`, title: book.title,
+              subtitle: ch.title, excerpt: getExcerpt(plain, trimmed), link: `/books/${book.id}/${ch.id}`,
             });
           }
         }
@@ -155,14 +142,10 @@ export default function SearchPage() {
 
     if (source === 'all' || source === 'prayers') {
       for (const prayer of prayers) {
-        if (prayer.text.toLowerCase().includes(q) || prayer.topic.toLowerCase().includes(q)) {
+        if (wordRegex.test(prayer.text) || wordRegex.test(prayer.topic)) {
           hits.push({
-            type: 'prayer',
-            id: prayer.id,
-            title: prayer.title || prayer.topic,
-            subtitle: prayer.author,
-            excerpt: getExcerpt(prayer.text, query),
-            link: `/prayers/${prayer.id}`,
+            type: 'prayer', id: prayer.id, title: prayer.title || prayer.topic,
+            subtitle: prayer.author, excerpt: getExcerpt(prayer.text, trimmed), link: `/prayers/${prayer.id}`,
           });
         }
       }
@@ -172,16 +155,13 @@ export default function SearchPage() {
       const cached = getLettersAsUHJ();
       for (const letter of cached) {
         const plain = letter.content ? letter.content.replace(/<[^>]+>/g, '') : '';
-        const titleMatch = letter.title.toLowerCase().includes(q) || letter.recipient.toLowerCase().includes(q);
-        const contentMatch = plain.toLowerCase().includes(q);
+        const titleMatch = wordRegex.test(letter.title) || wordRegex.test(letter.recipient);
+        const contentMatch = wordRegex.test(plain);
         if (titleMatch || contentMatch) {
           const entry = letterIndex.find(e => e.id === letter.id);
           hits.push({
-            type: 'letter',
-            id: letter.id,
-            title: letter.title,
-            subtitle: letter.date,
-            excerpt: contentMatch ? getExcerpt(plain, query) : letter.recipient,
+            type: 'letter', id: letter.id, title: letter.title,
+            subtitle: letter.date, excerpt: contentMatch ? getExcerpt(plain, trimmed) : letter.recipient,
             link: `/letters/${entry?.urlCode || letter.id}`,
           });
         }
@@ -192,9 +172,9 @@ export default function SearchPage() {
   }, [query, source]);
 
   const typeConfig = {
-    book:   { icon: BookOpen,   color: '#0B4F6C', border: 'border-l-[#0B4F6C]', badge: 'bg-[#0B4F6C]/8 text-[#0B4F6C]', label: 'Book' },
-    prayer: { icon: Heart,      color: '#7D9B8A', border: 'border-l-[#7D9B8A]', badge: 'bg-[#7D9B8A]/10 text-[#6B8A78]', label: 'Prayer' },
-    letter: { icon: ScrollText, color: '#8B6F47', border: 'border-l-[#8B6F47]', badge: 'bg-[#8B6F47]/8 text-[#7A6040]', label: 'Letter' },
+    book:   { icon: BookOpen,   color: '#0B4F6C', label: 'Book' },
+    prayer: { icon: Heart,      color: '#7D9B8A', label: 'Prayer' },
+    letter: { icon: ScrollText, color: '#8B6F47', label: 'Letter' },
   };
 
   const sources: { key: Source; label: string; icon: typeof BookOpen }[] = [
@@ -207,23 +187,19 @@ export default function SearchPage() {
   return (
     <div className="flex-1 flex flex-col w-full">
 
-      {/* ── Hero Header ── */}
+      {/* Hero Header */}
       <div className={`relative overflow-hidden w-full ${t.header} pt-8 pb-10 px-4`}>
-
-        {/* Background star watermark — large, centre-right */}
         <div className="absolute -right-16 top-1/2 -translate-y-1/2 pointer-events-none select-none">
           <NineStar className={`w-72 h-72 md:w-96 md:h-96 ${t.starColor} opacity-[0.05]`} />
         </div>
-        {/* Small accent star — top-left */}
         <div className="absolute -left-6 -top-6 pointer-events-none select-none">
           <NineStar className={`w-32 h-32 ${t.starColor} opacity-[0.06]`} />
         </div>
-        {/* Tiny accent star — bottom-right corner */}
         <div className="absolute right-8 bottom-4 pointer-events-none select-none hidden md:block">
           <NineStar className={`w-10 h-10 ${t.starColor} opacity-10`} />
         </div>
 
-        {/* Theme selector — top right */}
+        {/* Theme selector */}
         <div className="absolute top-4 right-4 flex gap-1.5">
           {(Object.entries(THEMES) as [ThemeKey, typeof THEMES[ThemeKey]][]).map(([key, cfg]) => (
             <button
@@ -240,8 +216,8 @@ export default function SearchPage() {
 
         {/* Title */}
         <div className="relative max-w-3xl mx-auto text-center mb-7">
-          <p className={`text-xs tracking-[0.25em] uppercase mb-2 ${t.subtitle}`}>Bahá'í Reference Library</p>
-          <h1 className={`text-3xl sm:text-4xl font-light mb-1 ${t.title}`} style={{ fontFamily: 'Crimson Pro, serif' }}>
+          <p className={`text-xs tracking-[0.25em] uppercase mb-2 font-body ${t.subtitle}`}>Bah&aacute;&rsquo;&iacute; Reference Library</p>
+          <h1 className={`font-display text-3xl sm:text-4xl font-light mb-1 ${t.title}`}>
             Search the Writings
           </h1>
           <div className={`w-10 h-0.5 mx-auto mt-3 ${t.starColor} opacity-30`} style={{ background: 'currentColor' }} />
@@ -257,15 +233,22 @@ export default function SearchPage() {
               value={query}
               onChange={e => setQuery(e.target.value)}
               autoFocus
-              className={`w-full bg-transparent pl-14 pr-6 py-4 sm:py-5 text-base sm:text-lg focus:outline-none rounded-2xl ${t.inputText}`}
+              className={`w-full bg-transparent pl-14 pr-12 py-4 sm:py-5 text-base sm:text-lg focus:outline-none rounded-2xl font-body ${t.inputText}`}
             />
-            {/* Animated custom placeholder */}
+            {query && (
+              <button
+                onClick={() => setQuery('')}
+                className={`absolute right-4 p-1 rounded-full bg-transparent border-none cursor-pointer ${t.iconColor} hover:opacity-80 transition-opacity`}
+              >
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+                  <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+                </svg>
+              </button>
+            )}
             {!query && (
               <div className="absolute left-14 top-0 bottom-0 flex items-center pointer-events-none">
-                <span
-                  className={`text-base sm:text-lg transition-all duration-500 ${t.placeholderColor} ${suggestionVisible ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-1'}`}
-                >
-                  Search for <em>"{suggestions[suggestionIdx]}"</em>…
+                <span className={`text-base sm:text-lg transition-all duration-500 font-body ${t.placeholderColor} ${suggestionVisible ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-1'}`}>
+                  Search for <em>&ldquo;{suggestions[suggestionIdx]}&rdquo;</em>&hellip;
                 </span>
               </div>
             )}
@@ -278,7 +261,7 @@ export default function SearchPage() {
             <button
               key={key}
               onClick={() => setSource(key)}
-              className={`flex items-center gap-1.5 px-4 py-2 rounded-full text-sm cursor-pointer transition-all duration-200 bg-transparent border-none ${
+              className={`flex items-center gap-1.5 px-4 py-2 rounded-full text-sm cursor-pointer transition-all duration-200 bg-transparent border-none font-body ${
                 source === key ? t.activeFilter : t.inactiveFilter
               }`}
             >
@@ -289,13 +272,13 @@ export default function SearchPage() {
         </div>
       </div>
 
-      {/* ── Results ── */}
+      {/* Results */}
       <div className="flex-1 w-full px-4 py-8 sm:px-8 lg:px-12 xl:px-16 max-w-7xl mx-auto">
 
-        {query.length >= 2 && (
-          <p className="text-sm text-[#6B7280] mb-5">
-            {results.length} result{results.length !== 1 ? 's' : ''} for <strong className="text-[#2D2D2D]">"{query}"</strong>
-            {source !== 'all' && <span className="text-[#9CA3AF]"> in {sources.find(s => s.key === source)?.label}</span>}
+        {query.trim().length >= 2 && (
+          <p className="text-sm text-secondary mb-5 font-body">
+            {results.length} result{results.length !== 1 ? 's' : ''} for <strong className="text-primary">&ldquo;{query.trim()}&rdquo;</strong>
+            {source !== 'all' && <span className="text-muted"> in {sources.find(s => s.key === source)?.label}</span>}
           </p>
         )}
 
@@ -307,22 +290,23 @@ export default function SearchPage() {
               <Link
                 key={r.id}
                 to={r.link}
-                className={`bg-white rounded-xl border border-[#E5DDD0] border-l-4 ${cfg.border} no-underline hover:shadow-lg hover:border-[#C9A84C]/40 transition-all duration-300 group overflow-hidden`}
+                className="card-elevated border border-border border-l-4 no-underline hover:border-gold/40 transition-all duration-300 group overflow-hidden"
+                style={{ borderLeftColor: cfg.color }}
               >
                 <div className="p-5">
                   <div className="flex items-start gap-3">
-                    <div className={`w-8 h-8 rounded-lg ${cfg.badge} flex items-center justify-center shrink-0 mt-0.5`}>
+                    <div className="w-8 h-8 rounded-lg flex items-center justify-center shrink-0 mt-0.5" style={{ background: `${cfg.color}14` }}>
                       <Icon size={14} style={{ color: cfg.color }} />
                     </div>
                     <div className="flex-1 min-w-0">
                       <div className="flex items-baseline gap-2 flex-wrap mb-1">
-                        <h3 className="text-sm font-semibold text-[#2D2D2D] m-0 group-hover:text-[#0B4F6C] transition-colors">
+                        <h3 className="text-sm font-semibold text-primary m-0 group-hover:text-heading transition-colors font-body">
                           {r.title}
                         </h3>
-                        <span className="text-xs text-[#9CA3AF] truncate">{r.subtitle}</span>
+                        <span className="text-xs text-muted truncate font-body">{r.subtitle}</span>
                       </div>
                       <p
-                        className="text-sm text-[#6B7280] m-0 leading-relaxed line-clamp-3"
+                        className="text-sm text-secondary m-0 leading-relaxed line-clamp-3 font-body"
                         dangerouslySetInnerHTML={{ __html: highlight(r.excerpt, query) }}
                       />
                     </div>
@@ -334,23 +318,21 @@ export default function SearchPage() {
         </div>
 
         {/* Empty state */}
-        {query.length < 2 && (
+        {query.trim().length < 2 && (
           <div className="text-center mt-12 mb-8">
-            {/* Decorative star */}
             <div className="flex justify-center mb-6">
-              <NineStar className="w-16 h-16 text-[#E5DDD0]" />
+              <NineStar className="w-16 h-16 text-border" />
             </div>
-            <p className="text-[#9CA3AF] text-base mb-6">Search across all sacred texts, prayers, and letters</p>
+            <p className="text-muted text-base mb-6 font-body">Search across all sacred texts, prayers, and letters</p>
 
-            {/* Suggested searches */}
             <div className="max-w-lg mx-auto">
-              <p className="text-xs text-[#B0B8C0] uppercase tracking-widest mb-3">Suggested searches</p>
+              <p className="text-xs text-muted uppercase tracking-widest mb-3 font-body">Suggested searches</p>
               <div className="flex flex-wrap justify-center gap-2">
                 {['unity', 'justice', 'love', 'healing', 'prayer', 'light', 'peace', 'service', 'wisdom', 'faith'].map(term => (
                   <button
                     key={term}
                     onClick={() => { setQuery(term); inputRef.current?.focus(); }}
-                    className="px-3.5 py-1.5 rounded-full text-sm bg-white border border-[#E5DDD0] text-[#6B7280] hover:border-[#C9A84C] hover:text-[#0B4F6C] transition-all cursor-pointer"
+                    className="px-3.5 py-1.5 rounded-full text-sm bg-card border border-border text-secondary hover:border-gold hover:text-heading transition-all cursor-pointer font-body"
                   >
                     {term}
                   </button>
@@ -360,11 +342,11 @@ export default function SearchPage() {
           </div>
         )}
 
-        {query.length >= 2 && results.length === 0 && (
+        {query.trim().length >= 2 && results.length === 0 && (
           <div className="text-center mt-16">
-            <NineStar className="w-12 h-12 text-[#E5DDD0] mx-auto mb-4" />
-            <p className="text-[#9CA3AF]">No results found for "{query}"</p>
-            <p className="text-sm text-[#B0B8C0] mt-1">Try a different search term</p>
+            <NineStar className="w-12 h-12 text-border mx-auto mb-4" />
+            <p className="text-muted font-body">No results found for &ldquo;{query}&rdquo;</p>
+            <p className="text-sm text-muted mt-1 font-body">Try a different search term</p>
           </div>
         )}
       </div>

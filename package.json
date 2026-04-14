@@ -13,6 +13,7 @@
     "electron:build": "vite build && electron-builder"
   },
   "dependencies": {
+    "@supabase/supabase-js": "^2.99.3",
     "@tiptap/extension-highlight": "^3.20.4",
     "@tiptap/extension-placeholder": "^3.20.4",
     "@tiptap/pm": "^3.20.4",
@@ -22,6 +23,7 @@
     "electron": "^41.0.2",
     "electron-builder": "^26.8.1",
     "lucide-react": "^0.577.0",
+    "pg": "^8.20.0",
     "react": "^19.2.4",
     "react-dom": "^19.2.4",
     "react-router-dom": "^7.13.1"

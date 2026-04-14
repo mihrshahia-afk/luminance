@@ -13,15 +13,40 @@ const BAHAI_ORG = 'https://www.bahai.org';
 const DELAY_MS = 1500; // polite delay between requests
 
 const bookConfigs = [
+  // Bahá'u'lláh
   { id: 'hidden-words',           urlPath: 'bahaullah/hidden-words' },
-  { id: 'seven-valleys',          urlPath: 'bahaullah/seven-valleys' },
+  { id: 'seven-valleys',          urlPath: 'bahaullah/call-divine-beloved' },
   { id: 'gleanings',              urlPath: 'bahaullah/gleanings-writings-bahaullah' },
   { id: 'iqan',                   urlPath: 'bahaullah/kitab-i-iqan' },
   { id: 'aqdas',                  urlPath: 'bahaullah/kitab-i-aqdas' },
+  { id: 'epistle-son-wolf',       urlPath: 'bahaullah/epistle-son-wolf' },
+  { id: 'prayers-meditations',    urlPath: 'bahaullah/prayers-meditations' },
+  { id: 'tablets-bahaullah',      urlPath: 'bahaullah/tablets-bahaullah' },
+  { id: 'summons-lord-hosts',     urlPath: 'bahaullah/summons-lord-hosts' },
+  { id: 'gems-divine-mysteries',  urlPath: 'bahaullah/gems-divine-mysteries' },
+  { id: 'days-remembrance',       urlPath: 'bahaullah/days-remembrance' },
+  { id: 'tabernacle-unity',       urlPath: 'bahaullah/tabernacle-unity' },
+  // 'Abdu'l-Bahá
   { id: 'paris-talks',            urlPath: 'abdul-baha/paris-talks' },
   { id: 'promulgation',           urlPath: 'abdul-baha/promulgation-universal-peace' },
   { id: 'some-answered-questions',urlPath: 'abdul-baha/some-answered-questions' },
-  { id: 'dawn-breakers',          urlPath: 'nabil-i-azam/dawn-breakers' },
+  { id: 'selections-writings-abdul-baha', urlPath: 'abdul-baha/selections-writings-abdul-baha' },
+  { id: 'secret-divine-civilization',     urlPath: 'abdul-baha/secret-divine-civilization' },
+  { id: 'memorials-faithful',     urlPath: 'abdul-baha/memorials-faithful' },
+  { id: 'will-testament',         urlPath: 'abdul-baha/will-testament-abdul-baha' },
+  { id: 'tablets-divine-plan',    urlPath: 'abdul-baha/tablets-divine-plan' },
+  { id: 'travelers-narrative',    urlPath: 'abdul-baha/travelers-narrative' },
+  { id: 'light-of-the-world',     urlPath: 'abdul-baha/light-of-the-world' },
+  // Shoghi Effendi
+  { id: 'god-passes-by',          urlPath: 'shoghi-effendi/god-passes-by' },
+  { id: 'world-order-bahaullah',  urlPath: 'shoghi-effendi/world-order-bahaullah' },
+  { id: 'advent-divine-justice',  urlPath: 'shoghi-effendi/advent-divine-justice' },
+  { id: 'promised-day-come',      urlPath: 'shoghi-effendi/promised-day-come' },
+  { id: 'citadel-faith',          urlPath: 'shoghi-effendi/citadel-faith' },
+  { id: 'decisive-hour',          urlPath: 'shoghi-effendi/decisive-hour' },
+  { id: 'bahai-administration',   urlPath: 'shoghi-effendi/bahai-administration' },
+  // The Báb
+  { id: 'selections-writings-bab', urlPath: 'the-bab/selections-writings-bab' },
 ];
 
 // Load existing output so we can resume if interrupted

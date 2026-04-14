@@ -2,7 +2,7 @@ export interface Book {
   id: string;
   title: string;
   author: string;
-  category: 'bahaullah' | 'abdulbaha' | 'shoghieffendi' | 'other';
+  category: 'bahaullah' | 'abdulbaha' | 'shoghieffendi' | 'thebab' | 'other';
   description: string;
   chapters: Chapter[];
 }

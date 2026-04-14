@@ -14,33 +14,32 @@ export default function FavoritesPage() {
   const total = favBooks.length + favPrayers.length + favLetters.length;
 
   return (
-    <div className="flex-1 w-full px-4 py-8 sm:px-8 lg:px-12 xl:px-16 max-w-7xl mx-auto">
+    <div className="flex-1 w-full px-4 py-8 sm:px-8 lg:px-12 xl:px-16 max-w-7xl mx-auto stagger-enter">
       <div className="mb-8">
         <div className="flex items-center gap-3 mb-1">
-          <Star size={22} className="text-[#C9A84C]" />
-          <h1 className="text-2xl font-semibold text-[#0B4F6C] m-0">Favorites</h1>
+          <Star size={22} className="text-gold" />
+          <h1 className="page-title text-2xl">Favorites</h1>
         </div>
-        <p className="text-sm text-[#6B7280] m-0 ml-9">{total} item{total !== 1 ? 's' : ''} saved</p>
+        <p className="text-sm text-secondary m-0 ml-9 font-body">{total} item{total !== 1 ? 's' : ''} saved</p>
       </div>
 
       {total === 0 && (
         <div className="text-center mt-16">
-          <Star size={48} className="text-[#E5DDD0] mx-auto mb-4" />
-          <p className="text-[#9CA3AF]">No favorites yet. Star items you love to find them here.</p>
+          <Star size={48} className="text-border mx-auto mb-4" />
+          <p className="text-muted font-body">No favorites yet. Star items you love to find them here.</p>
         </div>
       )}
 
       {favBooks.length > 0 && (
         <div className="mb-8">
-          <div className="flex items-center gap-2 mb-3">
-            <BookOpen size={16} className="text-[#0B4F6C]" />
-            <h2 className="text-sm font-semibold text-[#0B4F6C] uppercase tracking-wider m-0">Books</h2>
+          <div className="category-divider text-teal">
+            <span><BookOpen size={14} className="inline mr-1.5 -mt-0.5" />Books</span>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">
             {favBooks.map(b => (
-              <Link key={b.id} to={`/books/${b.id}`} className="bg-white rounded-lg p-4 border border-[#E5DDD0] no-underline hover:shadow-sm transition-shadow">
-                <h3 className="text-sm font-semibold text-[#2D2D2D] m-0">{b.title}</h3>
-                <p className="text-xs text-[#6B7280] m-0 mt-1">{b.author}</p>
+              <Link key={b.id} to={`/books/${b.id}`} className="card-elevated p-4 border border-border no-underline hover:border-gold/40 transition-all">
+                <h3 className="text-sm font-semibold text-primary m-0 font-body">{b.title}</h3>
+                <p className="text-xs text-secondary m-0 mt-1 font-body">{b.author}</p>
               </Link>
             ))}
           </div>
@@ -49,16 +48,15 @@ export default function FavoritesPage() {
 
       {favPrayers.length > 0 && (
         <div className="mb-8">
-          <div className="flex items-center gap-2 mb-3">
-            <Heart size={16} className="text-[#7D9B8A]" />
-            <h2 className="text-sm font-semibold text-[#7D9B8A] uppercase tracking-wider m-0">Prayers</h2>
+          <div className="category-divider text-sage">
+            <span><Heart size={14} className="inline mr-1.5 -mt-0.5" />Prayers</span>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">
             {favPrayers.map(p => (
-              <Link key={p.id} to={`/prayers/${p.id}`} className="bg-white rounded-lg p-4 border border-[#E5DDD0] no-underline hover:shadow-sm transition-shadow">
-                <span className="text-xs text-[#C9A84C]">{p.topic}</span>
-                <p className="text-sm text-[#2D2D2D] m-0 mt-1 line-clamp-2">{p.text.slice(0, 100)}...</p>
-                <p className="text-xs text-[#6B7280] m-0 mt-1">— {p.author}</p>
+              <Link key={p.id} to={`/prayers/${p.id}`} className="card-elevated p-4 border border-border no-underline hover:border-gold/40 transition-all">
+                <span className="text-xs text-gold font-body">{p.topic}</span>
+                <p className="text-sm text-primary m-0 mt-1 line-clamp-2 font-body">{p.text.slice(0, 100)}...</p>
+                <p className="text-xs text-secondary m-0 mt-1 font-reading italic">&mdash; {p.author}</p>
               </Link>
             ))}
           </div>
@@ -67,15 +65,14 @@ export default function FavoritesPage() {
 
       {favLetters.length > 0 && (
         <div className="mb-8">
-          <div className="flex items-center gap-2 mb-3">
-            <ScrollText size={16} className="text-[#8B6F47]" />
-            <h2 className="text-sm font-semibold text-[#8B6F47] uppercase tracking-wider m-0">Universal House of Justice Letters</h2>
+          <div className="category-divider text-brown">
+            <span><ScrollText size={14} className="inline mr-1.5 -mt-0.5" />Letters</span>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">
             {favLetters.map(l => (
-              <Link key={l.id} to={`/letters/${l.urlCode}`} className="bg-white rounded-lg p-4 border border-[#E5DDD0] no-underline hover:shadow-sm transition-shadow">
-                <h3 className="text-sm font-semibold text-[#2D2D2D] m-0">{l.title}</h3>
-                <p className="text-xs text-[#6B7280] m-0 mt-1">{l.date} — {l.recipient}</p>
+              <Link key={l.id} to={`/letters/${l.urlCode}`} className="card-elevated p-4 border border-border no-underline hover:border-gold/40 transition-all">
+                <h3 className="text-sm font-semibold text-primary m-0 font-body">{l.title}</h3>
+                <p className="text-xs text-secondary m-0 mt-1 font-body">{l.date} &mdash; {l.recipient}</p>
               </Link>
             ))}
           </div>

@@ -6,16 +6,27 @@ const STRUCTURE_KEY = 'luminance-book-structure';
 const CONTENT_KEY = 'luminance-book-content';
 
 // Static pre-fetched content (populated by scripts/fetch-books.js)
-let staticBooks: Record<string, { title?: string; content?: string } | BookChapter[]> | null = null;
-let staticLoadPromise: Promise<Record<string, { title?: string; content?: string } | BookChapter[]> | null> | null = null;
+type StaticData = Record<string, { title?: string; content?: string } | BookChapter[]>;
+const staticCache: Record<string, StaticData | null> = {};
+const loadPromises: Record<string, Promise<StaticData | null>> = {};
 
-async function getStaticBooks(): Promise<typeof staticBooks> {
-  if (staticBooks !== null) return staticBooks;
-  if (staticLoadPromise) return staticLoadPromise;
-  staticLoadPromise = import('./bookContent.json')
-    .then(mod => { staticBooks = mod.default || mod; return staticBooks; })
-    .catch(() => { staticBooks = {}; return staticBooks; });
-  return staticLoadPromise;
+async function getStaticBooks(lang = 'en'): Promise<StaticData | null> {
+  if (staticCache[lang] !== undefined) return staticCache[lang];
+  if (lang in loadPromises) return loadPromises[lang];
+
+  const loader = lang === 'en'
+    ? import('./bookContent.json')
+    : lang === 'fa'
+    ? import('./bookContent-fa.json')
+    : lang === 'ar'
+    ? import('./bookContent-ar.json')
+    : import('./bookContent.json');
+
+  loadPromises[lang] = loader
+    .then(mod => { staticCache[lang] = mod.default || mod; return staticCache[lang]; })
+    .catch(() => { staticCache[lang] = null; return null; });
+
+  return loadPromises[lang];
 }
 
 // ─── Cache helpers ────────────────────────────────────────────────────────────
@@ -46,7 +57,17 @@ function saveContent(key: string, text: string) {
  * Fetches the book's TOC page from bahai.org and parses all chapter links.
  * Falls back to seedChapters if discovery fails or finds nothing.
  */
-export async function discoverChapters(config: BookConfig): Promise<BookChapter[]> {
+export async function discoverChapters(config: BookConfig, lang = 'en'): Promise<BookChapter[]> {
+  // For non-English languages, check if we have static content
+  if (lang !== 'en') {
+    const sb = await getStaticBooks(lang);
+    const chaptersKey = `${config.id}/__chapters_${lang}`;
+    const staticChapters = sb?.[chaptersKey] as BookChapter[] | undefined;
+    if (staticChapters && staticChapters.length > 0) return staticChapters;
+    // Fall back to English chapters if not available in this language
+    return discoverChapters(config, 'en');
+  }
+
   const cache = getStructureCache();
 
   // Return cached structure if discovered in the last 30 days
@@ -127,16 +148,23 @@ export function getCachedChapter(urlPath: string, urlSegment: string): string | 
 /**
  * Fetches a chapter page from bahai.org, extracts the main text, and caches it.
  */
-export async function fetchChapter(urlPath: string, urlSegment: string, bookId?: string): Promise<string> {
-  const cacheKey = `${urlPath}/${urlSegment}`;
+export async function fetchChapter(urlPath: string, urlSegment: string, bookId?: string, lang = 'en'): Promise<string> {
+  const cacheKey = `${urlPath}/${urlSegment}/${lang}`;
   const cached = getContentCache()[cacheKey];
   if (cached) return cached;
 
-  // Check static pre-fetched content
+  // Check static pre-fetched content in the appropriate language
   if (bookId) {
-    const sb = await getStaticBooks();
+    const sb = await getStaticBooks(lang);
     const entry = sb?.[`${bookId}/${urlSegment}`] as { title?: string; content?: string } | undefined;
     if (entry?.content && entry.content.length > 50) return entry.content;
+
+    // Fall back to English if not available in requested language
+    if (lang !== 'en') {
+      const enSb = await getStaticBooks('en');
+      const enEntry = enSb?.[`${bookId}/${urlSegment}`] as { title?: string; content?: string } | undefined;
+      if (enEntry?.content && enEntry.content.length > 50) return enEntry.content;
+    }
   }
 
 

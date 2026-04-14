@@ -1,7 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 
-// 9-pointed star: outer r=90, inner r=38, center (100,100)
 const STAR_POINTS = [
   [100, 10], [115.4, 57.7], [157.8, 31.1], [138.9, 77.5],
   [188.6, 84.3], [144.3, 107.8], [177.9, 145], [128.9, 134.5],
@@ -9,7 +8,6 @@ const STAR_POINTS = [
   [22.1, 145], [55.7, 107.8], [11.4, 84.3], [61.1, 77.5],
   [42.1, 31.1], [84.6, 57.7],
 ].map(([x, y]) => `${x},${y}`).join(' ');
-
 
 export default function SplashPage() {
   const navigate = useNavigate();
@@ -47,84 +45,46 @@ export default function SplashPage() {
         ))}
       </div>
 
-      <div style={{
-        position: 'absolute', width: 420, height: 420, borderRadius: '50%',
+      <div className="absolute w-[280px] h-[280px] sm:w-[420px] sm:h-[420px] rounded-full pointer-events-none" style={{
         background: 'radial-gradient(circle, rgba(201,168,76,0.08) 0%, transparent 65%)',
-        pointerEvents: 'none', animation: 'starGlow 5s ease-in-out 2s infinite',
+        animation: 'starGlow 5s ease-in-out 2s infinite',
       }} />
 
       <div className={exiting ? 'splash-star splash-star-exit' : 'splash-star'}>
-        <svg width="260" height="260" viewBox="0 0 200 200" fill="none">
-
-          {/* Outer ring — full circle */}
-          <circle cx="100" cy="100" r="95"
-            stroke="#C9A84C" strokeWidth="0.6" fill="none"
-            className="star-circle"
-          />
-
-          {/* Inner dashed ring */}
-          <circle cx="100" cy="100" r="70"
-            stroke="#C9A84C" strokeWidth="0.35"
-            strokeDasharray="2 6" fill="none" opacity="0"
-            style={{ animation: 'fadeIn 1s ease-out 2.6s forwards' }}
-          />
-
-          {/* Star fill */}
+        <svg className="w-[180px] h-[180px] sm:w-[260px] sm:h-[260px]" viewBox="0 0 200 200" fill="none">
+          <circle cx="100" cy="100" r="95" stroke="#C9A84C" strokeWidth="0.6" fill="none" className="star-circle" />
+          <circle cx="100" cy="100" r="70" stroke="#C9A84C" strokeWidth="0.35" strokeDasharray="2 6" fill="none" opacity="0" style={{ animation: 'fadeIn 1s ease-out 2.6s forwards' }} />
           <polygon points={STAR_POINTS} fill="#C9A84C" className="star-fill" />
-
-          {/* Star outline */}
-          <polygon points={STAR_POINTS} fill="none"
-            stroke="#C9A84C" strokeWidth="1.2" strokeLinejoin="round"
-            className="star-outline"
-          />
-
-          {/* 9 tip dots */}
+          <polygon points={STAR_POINTS} fill="none" stroke="#C9A84C" strokeWidth="1.2" strokeLinejoin="round" className="star-outline" />
           {Array.from({ length: 9 }).map((_, i) => {
             const angle = (-90 + i * 40) * (Math.PI / 180);
             return (
-              <circle key={i}
-                cx={100 + 95 * Math.cos(angle)} cy={100 + 95 * Math.sin(angle)}
-                r="2" fill="#C9A84C" opacity="0"
-                style={{ animation: `fadeIn 0.6s ease-out ${2.3 + i * 0.06}s forwards` }}
-              />
+              <circle key={i} cx={100 + 95 * Math.cos(angle)} cy={100 + 95 * Math.sin(angle)} r="2" fill="#C9A84C" opacity="0" style={{ animation: `fadeIn 0.6s ease-out ${2.3 + i * 0.06}s forwards` }} />
             );
           })}
-
-          {/* Greatest Name calligraphy — fade in after star is drawn */}
-          <image
-            href="/greatest-name.svg"
-            x="52.5" y="77.5" width="95" height="45"
-            opacity="0"
-            style={{ animation: 'fadeIn 1.2s ease-out 2.4s forwards' }}
-          />
-
+          <image href="/greatest-name.svg" x="52.5" y="77.5" width="95" height="45" opacity="0" style={{ animation: 'fadeIn 1.2s ease-out 2.4s forwards' }} />
         </svg>
       </div>
 
-      <div className="splash-title" style={{ marginTop: 20, textAlign: 'center' }}>
-        <h1 style={{
-          fontFamily: "'Crimson Pro', serif", fontSize: '3.8rem', fontWeight: 300,
-          color: '#FAF7F0', letterSpacing: '0.22em', margin: 0, textTransform: 'uppercase',
-        }}>Luminance</h1>
+      <div className="splash-title mt-5 text-center">
+        <h1 className="font-display text-[clamp(2.2rem,10vw,3.8rem)] font-light text-[#FAF7F0] tracking-[0.15em] sm:tracking-[0.22em] m-0 uppercase">
+          Luminance
+        </h1>
       </div>
 
-      <div className="splash-subtitle" style={{ marginTop: 8, textAlign: 'center' }}>
-        <p style={{
-          fontFamily: "'Crimson Pro', serif", fontSize: '0.9rem', color: '#C9A84C',
-          letterSpacing: '0.28em', margin: 0, textTransform: 'uppercase', opacity: 0.75,
-        }}>A Personal Bahá'í Library</p>
+      <div className="splash-subtitle mt-2 text-center">
+        <p className="font-display text-[clamp(0.7rem,2.5vw,0.9rem)] text-gold tracking-[0.15em] sm:tracking-[0.28em] m-0 uppercase opacity-75 px-4">
+          A Personal Bah&aacute;&rsquo;&iacute; Library
+        </p>
       </div>
 
-      <div className="splash-line" style={{
-        marginTop: 26, width: 100, height: 1,
+      <div className="splash-line mt-5 sm:mt-[26px] w-[70px] sm:w-[100px] h-px origin-center" style={{
         background: 'linear-gradient(to right, transparent, rgba(201,168,76,0.6), transparent)',
-        transformOrigin: 'center',
       }} />
 
-      <p className="splash-prompt" style={{
-        marginTop: 28, fontFamily: "'Inter', sans-serif", fontSize: '0.7rem',
-        color: 'rgba(250,247,240,0.35)', letterSpacing: '0.22em', textTransform: 'uppercase',
-      }}>Alláh-u-Abhá!</p>
+      <p className="splash-prompt mt-5 sm:mt-7 font-body text-[0.65rem] sm:text-[0.7rem] text-[rgba(250,247,240,0.35)] tracking-[0.15em] sm:tracking-[0.22em] uppercase">
+        All&aacute;h-u-Abh&aacute;!
+      </p>
     </div>
   );
 }

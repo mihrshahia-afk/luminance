@@ -7,18 +7,33 @@ import Layout from './components/Layout';
 import AuthPage from './pages/AuthPage';
 import SplashPage from './pages/SplashPage';
 
-// Lazy-load all other pages for code splitting
-const HomePage = lazy(() => import('./pages/HomePage'));
-const BooksPage = lazy(() => import('./pages/BooksPage'));
-const BookReaderPage = lazy(() => import('./pages/BookReaderPage'));
-const PrayersPage = lazy(() => import('./pages/PrayersPage'));
-const PrayerReaderPage = lazy(() => import('./pages/PrayerReaderPage'));
-const LettersPage = lazy(() => import('./pages/LettersPage'));
-const LetterReaderPage = lazy(() => import('./pages/LetterReaderPage'));
-const SearchPage = lazy(() => import('./pages/SearchPage'));
-const FavoritesPage = lazy(() => import('./pages/FavoritesPage'));
-const QiblihPage = lazy(() => import('./pages/QiblihPage'));
-const SettingsPage = lazy(() => import('./pages/SettingsPage'));
+// Lazy-load all other pages for code splitting.
+// On chunk-load failure (stale deploy), reload the page once to pick up the new build.
+function lazyRetry<T extends { default: React.ComponentType }>(loader: () => Promise<T>) {
+  return lazy(() =>
+    loader().catch(() => {
+      // Chunk hash mismatch after a redeploy — reload to get fresh index.html
+      const key = 'luminance-reload';
+      if (!sessionStorage.getItem(key)) {
+        sessionStorage.setItem(key, '1');
+        window.location.reload();
+      }
+      return loader(); // fallback (won't reach if reload fires)
+    })
+  );
+}
+
+const HomePage = lazyRetry(() => import('./pages/HomePage'));
+const BooksPage = lazyRetry(() => import('./pages/BooksPage'));
+const BookReaderPage = lazyRetry(() => import('./pages/BookReaderPage'));
+const PrayersPage = lazyRetry(() => import('./pages/PrayersPage'));
+const PrayerReaderPage = lazyRetry(() => import('./pages/PrayerReaderPage'));
+const LettersPage = lazyRetry(() => import('./pages/LettersPage'));
+const LetterReaderPage = lazyRetry(() => import('./pages/LetterReaderPage'));
+const SearchPage = lazyRetry(() => import('./pages/SearchPage'));
+const FavoritesPage = lazyRetry(() => import('./pages/FavoritesPage'));
+const QiblihPage = lazyRetry(() => import('./pages/QiblihPage'));
+const SettingsPage = lazyRetry(() => import('./pages/SettingsPage'));
 
 function LoadingFallback() {
   return (

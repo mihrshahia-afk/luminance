@@ -1,4 +1,4 @@
-import { useState, useRef, useCallback } from 'react';
+import { useState, useRef, useCallback, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { bookCovers } from '../data/bookCovers';
 import { bookConfigs } from '../data/bookConfig';
@@ -186,107 +186,230 @@ export function SearchCard({ label }: { label: string }) {
 }
 
 /* ═══════════════════════════════════════════════════════════════
-   3. LETTERS — 2 large scrolls that open fully with more text
+   3. LETTERS — floating letters drifting in the wind
    ═══════════════════════════════════════════════════════════════ */
 
-const SCROLL_DATA = [
-  { id: 1 },
-  { id: 2 },
-  { id: 3 },
-  { id: 4 },
-  { id: 5 },
-];
+interface LetterState {
+  x: number; y: number;
+  vx: number; vy: number;
+  rot: number; rotV: number;
+  phase: number;    // sinusoidal wobble offset
+  freq: number;     // wobble frequency
+  amp: number;      // wobble amplitude
+  size: number;     // 0.7–1.1 scale
+  variant: number;  // which SVG scribble pattern (0–3)
+  opacity: number;
+}
 
-function LargeScroll({ open, delay }: { text?: unknown; open: boolean; delay: number }) {
+const LETTER_COUNT = 4;
+const WIND_RADIUS = 120;   // px — mouse influence radius
+const WIND_STRENGTH = 0.35;
+const DRIFT_SPEED = 0.25;
+const FRICTION = 0.985;
+const ROT_FRICTION = 0.97;
+
+function spawnLetter(w: number, h: number, edge?: number): LetterState {
+  // Spawn from a random edge (0=left, 1=right, 2=top, 3=bottom)
+  const e = edge ?? Math.floor(Math.random() * 4);
+  let x: number, y: number;
+  if (e === 0) { x = -30; y = Math.random() * h; }
+  else if (e === 1) { x = w + 30; y = Math.random() * h; }
+  else if (e === 2) { x = Math.random() * w; y = -30; }
+  else { x = Math.random() * w; y = h + 30; }
+
+  return {
+    x, y,
+    vx: (Math.random() - 0.5) * DRIFT_SPEED * 2,
+    vy: (Math.random() - 0.5) * DRIFT_SPEED,
+    rot: (Math.random() - 0.5) * 30,
+    rotV: (Math.random() - 0.5) * 0.3,
+    phase: Math.random() * Math.PI * 2,
+    freq: 0.015 + Math.random() * 0.01,
+    amp: 8 + Math.random() * 6,
+    size: 0.75 + Math.random() * 0.35,
+    variant: Math.floor(Math.random() * 4),
+    opacity: 0.55 + Math.random() * 0.3,
+  };
+}
+
+function LetterSVG({ variant }: { variant: number }) {
+  // Folded letter / parchment with scribble lines — 4 visual variants
+  const scribbles = [
+    // Variant 0: neat lines with a seal
+    <>
+      <line x1="8" y1="12" x2="32" y2="12" stroke="currentColor" strokeWidth="0.5" opacity="0.2" />
+      <line x1="8" y1="16" x2="28" y2="16" stroke="currentColor" strokeWidth="0.5" opacity="0.15" />
+      <line x1="8" y1="20" x2="30" y2="20" stroke="currentColor" strokeWidth="0.5" opacity="0.2" />
+      <line x1="8" y1="24" x2="24" y2="24" stroke="currentColor" strokeWidth="0.5" opacity="0.15" />
+      <circle cx="30" cy="30" r="3.5" fill="#C9A84C" opacity="0.25" />
+    </>,
+    // Variant 1: wavy scribbles, shorter
+    <>
+      <path d="M8 13 Q14 11 20 13 Q26 15 32 13" fill="none" stroke="currentColor" strokeWidth="0.5" opacity="0.18" />
+      <path d="M8 18 Q12 16 18 18 Q24 20 28 18" fill="none" stroke="currentColor" strokeWidth="0.5" opacity="0.15" />
+      <path d="M8 23 Q16 21 24 23" fill="none" stroke="currentColor" strokeWidth="0.5" opacity="0.18" />
+      <line x1="8" y1="28" x2="20" y2="28" stroke="currentColor" strokeWidth="0.5" opacity="0.12" />
+    </>,
+    // Variant 2: dense paragraph look
+    <>
+      {[11, 14, 17, 20, 23, 26, 29].map(y => (
+        <line key={y} x1="7" y1={y} x2={22 + Math.sin(y) * 8} y2={y}
+          stroke="currentColor" strokeWidth="0.4" opacity={0.12 + (y % 3) * 0.03} />
+      ))}
+    </>,
+    // Variant 3: heading + body + signature
+    <>
+      <line x1="12" y1="10" x2="28" y2="10" stroke="currentColor" strokeWidth="0.7" opacity="0.2" />
+      <line x1="8" y1="15" x2="32" y2="15" stroke="currentColor" strokeWidth="0.4" opacity="0.13" />
+      <line x1="8" y1="18" x2="30" y2="18" stroke="currentColor" strokeWidth="0.4" opacity="0.13" />
+      <line x1="8" y1="21" x2="26" y2="21" stroke="currentColor" strokeWidth="0.4" opacity="0.13" />
+      <path d="M18 28 Q22 26 26 28 Q28 29 26 30" fill="none" stroke="currentColor" strokeWidth="0.5" opacity="0.18" />
+    </>,
+  ];
+
   return (
-    <div className="flex flex-col items-center" style={{ width: '60px' }}>
-      {/* Top roll */}
-      <div className="w-[120%] h-3 sm:h-[14px] rounded-full z-2 relative shrink-0"
-        style={{
-          background: 'linear-gradient(to bottom, #D8C080, #C4A86A, #A88A48, #C4A86A, #D8C080)',
-          boxShadow: '0 3px 6px rgba(0,0,0,0.2), inset 0 1px 0 rgba(255,255,255,0.15)',
-        }}>
-        {/* Knob ends */}
-        <div className="absolute -left-1 top-0 bottom-0 w-2 rounded-full"
-          style={{ background: 'linear-gradient(to bottom, #B8983C, #8B7030, #B8983C)' }} />
-        <div className="absolute -right-1 top-0 bottom-0 w-2 rounded-full"
-          style={{ background: 'linear-gradient(to bottom, #B8983C, #8B7030, #B8983C)' }} />
-      </div>
-
-      {/* Paper body — fills entire space between rolls */}
-      <div className="w-full overflow-hidden transition-all"
-        style={{
-          flex: open ? '1' : '0',
-          maxHeight: open ? '100%' : '0px',
-          opacity: open ? 1 : 0,
-          transitionDuration: '0.8s',
-          transitionTimingFunction: 'cubic-bezier(0.16, 1, 0.3, 1)',
-          transitionDelay: `${delay}ms`,
-        }}>
-        {/* Wavy edge + parchment */}
-        <div className="relative" style={{
-          background: 'var(--bg-card)',
-          borderLeft: '2px solid rgba(200,180,120,0.2)',
-          borderRight: '2px solid rgba(200,180,120,0.2)',
-          padding: '6px 8px',
-          boxShadow: 'inset 2px 0 6px rgba(180,160,100,0.06), inset -2px 0 6px rgba(180,160,100,0.06)',
-        }}>
-          {/* Wavy left edge */}
-          <div className="absolute left-0 top-0 bottom-0 w-[3px]"
-            style={{ background: 'repeating-linear-gradient(to bottom, rgba(180,160,100,0.12) 0px, rgba(180,160,100,0.04) 4px, rgba(180,160,100,0.12) 8px)' }} />
-          {/* Wavy right edge */}
-          <div className="absolute right-0 top-0 bottom-0 w-[3px]"
-            style={{ background: 'repeating-linear-gradient(to bottom, rgba(180,160,100,0.04) 0px, rgba(180,160,100,0.12) 4px, rgba(180,160,100,0.04) 8px)' }} />
-
-          {/* Letter content filling entire scroll height */}
-          <div style={{
-            height: '100%',
-            overflow: 'hidden',
-            padding: '2px 3px',
-            fontFamily: "'Crimson Pro', serif",
-            fontSize: '6px',
-            lineHeight: '1.5',
-            color: 'var(--text-secondary)',
-            opacity: 0.6,
-          }}>
-            <p style={{ margin: '0 0 2px', fontFamily: "'Cormorant Garamond', serif", fontWeight: 600, fontSize: '6px', opacity: 0.85, color: 'var(--text-heading)' }}>
-              Universal House of Justice
-            </p>
-            <p style={{ margin: '0 0 3px', fontSize: '5px', opacity: 0.65 }}>
-              To the Bah&aacute;&rsquo;&iacute;s of the World
-            </p>
-            <div style={{ width: '40%', height: '0.5px', background: 'rgba(201,168,76,0.25)', margin: '2px 0 3px' }} />
-            <p style={{ margin: 0 }}>
-              Dearly loved friends, the community of the Greatest Name gathers at this time with hearts filled with gratitude and hope. The endeavours of the past year have borne remarkable fruit, and the signs of progress are evident in every corner of the globe. The capacity of individuals and communities to contribute to the betterment of society continues to grow. Young people everywhere are arising with energy and devotion to serve their fellow human beings. The institutions of the Faith are strengthening, and the processes of community building are advancing with ever greater momentum. Let us reflect upon the path ahead with confidence and resolve, knowing that the confirmations of the Blessed Beauty sustain every sincere effort. May each soul find renewed purpose in the service of humanity and the advancement of civilization. The challenges before us are great, yet the resources at our disposal, both material and spiritual, are more than sufficient to meet them.
-            </p>
-          </div>
-        </div>
-      </div>
-
-      {/* Bottom roll */}
-      <div className="w-[120%] h-3 sm:h-[14px] rounded-full z-2 relative"
-        style={{
-          background: 'linear-gradient(to bottom, #D8C080, #C4A86A, #A88A48, #C4A86A, #D8C080)',
-          boxShadow: '0 -2px 6px rgba(0,0,0,0.15), inset 0 -1px 0 rgba(255,255,255,0.1)',
-        }}>
-        <div className="absolute -left-1 top-0 bottom-0 w-2 rounded-full"
-          style={{ background: 'linear-gradient(to bottom, #B8983C, #8B7030, #B8983C)' }} />
-        <div className="absolute -right-1 top-0 bottom-0 w-2 rounded-full"
-          style={{ background: 'linear-gradient(to bottom, #B8983C, #8B7030, #B8983C)' }} />
-      </div>
-    </div>
+    <svg viewBox="0 0 40 38" width="40" height="38" style={{ overflow: 'visible' }}>
+      {/* Paper body */}
+      <rect x="3" y="5" width="34" height="30" rx="1.5"
+        fill="var(--bg-card)"
+        stroke="rgba(201,168,76,0.2)" strokeWidth="0.8" />
+      {/* Folded corner */}
+      <path d="M29 5 L37 5 L37 13 Z" fill="var(--bg-page)" stroke="rgba(201,168,76,0.15)" strokeWidth="0.5" />
+      <path d="M29 5 L29 13 L37 13" fill="var(--bg-card)" stroke="rgba(201,168,76,0.12)" strokeWidth="0.5"
+        style={{ filter: 'brightness(0.95)' }} />
+      {/* Scribble content */}
+      {scribbles[variant % scribbles.length]}
+    </svg>
   );
 }
 
 export function LettersCard({ label }: { label: string }) {
-  const [hovered, setHovered] = useState(false);
+  const containerRef = useRef<HTMLDivElement>(null);
+  const stateRef = useRef<LetterState[]>([]);
+  const mouseRef = useRef({ x: -999, y: -999, prevX: -999, prevY: -999, inside: false });
+  const rafRef = useRef(0);
+  const timeRef = useRef(0);
+  const [renderTick, setRenderTick] = useState(0);
+
+  // Initialize letters
+  useEffect(() => {
+    const el = containerRef.current;
+    if (!el) return;
+    const { width: w, height: h } = el.getBoundingClientRect();
+    // Spawn letters scattered inside the card
+    stateRef.current = Array.from({ length: LETTER_COUNT }, () => ({
+      ...spawnLetter(w, h),
+      x: 30 + Math.random() * (w - 60),
+      y: 20 + Math.random() * (h - 40),
+    }));
+  }, []);
+
+  // Animation loop
+  useEffect(() => {
+    let running = true;
+    const tick = () => {
+      if (!running) return;
+      const el = containerRef.current;
+      if (!el) { rafRef.current = requestAnimationFrame(tick); return; }
+      const { width: w, height: h } = el.getBoundingClientRect();
+      const mouse = mouseRef.current;
+      const letters = stateRef.current;
+      timeRef.current++;
+      const t = timeRef.current;
+
+      // Compute mouse velocity (wind direction)
+      const mvx = mouse.inside ? (mouse.x - mouse.prevX) * 0.5 : 0;
+      const mvy = mouse.inside ? (mouse.y - mouse.prevY) * 0.5 : 0;
+      mouse.prevX = mouse.x;
+      mouse.prevY = mouse.y;
+
+      for (const L of letters) {
+        // Gentle ambient drift (slight rightward + downward)
+        L.vx += (Math.random() - 0.48) * 0.02;
+        L.vy += (Math.random() - 0.47) * 0.01;
+
+        // Mouse wind force
+        if (mouse.inside && (Math.abs(mvx) > 0.3 || Math.abs(mvy) > 0.3)) {
+          const dx = L.x - mouse.x;
+          const dy = L.y - mouse.y;
+          const dist = Math.sqrt(dx * dx + dy * dy);
+          if (dist < WIND_RADIUS && dist > 5) {
+            const falloff = 1 - dist / WIND_RADIUS;
+            const force = falloff * falloff * WIND_STRENGTH;
+            // Push letter in the direction the mouse is moving
+            L.vx += mvx * force;
+            L.vy += mvy * force;
+            // Also slight rotational push
+            L.rotV += (mvx > 0 ? 1 : -1) * force * 2;
+          }
+        }
+
+        // Apply friction
+        L.vx *= FRICTION;
+        L.vy *= FRICTION;
+        L.rotV *= ROT_FRICTION;
+
+        // Clamp velocity
+        const maxV = 3;
+        const speed = Math.sqrt(L.vx * L.vx + L.vy * L.vy);
+        if (speed > maxV) { L.vx *= maxV / speed; L.vy *= maxV / speed; }
+
+        // Update position
+        L.x += L.vx;
+        L.y += L.vy + Math.sin(t * L.freq + L.phase) * 0.3; // gentle vertical wave
+        L.rot += L.rotV;
+
+        // Wrap around edges (with margin)
+        const m = 50;
+        if (L.x < -m) L.x = w + m * 0.5;
+        if (L.x > w + m) L.x = -m * 0.5;
+        if (L.y < -m) L.y = h + m * 0.5;
+        if (L.y > h + m) L.y = -m * 0.5;
+      }
+
+      setRenderTick(t);
+      rafRef.current = requestAnimationFrame(tick);
+    };
+    rafRef.current = requestAnimationFrame(tick);
+    return () => { running = false; cancelAnimationFrame(rafRef.current); };
+  }, []);
+
+  const handleMouseMove = useCallback((e: React.MouseEvent) => {
+    const rect = containerRef.current?.getBoundingClientRect();
+    if (!rect) return;
+    mouseRef.current.x = e.clientX - rect.left;
+    mouseRef.current.y = e.clientY - rect.top;
+    mouseRef.current.inside = true;
+  }, []);
+
+  const handleMouseLeave = useCallback(() => {
+    mouseRef.current.inside = false;
+  }, []);
+
+  // Touch support
+  const handleTouchMove = useCallback((e: React.TouchEvent) => {
+    const rect = containerRef.current?.getBoundingClientRect();
+    if (!rect || !e.touches[0]) return;
+    const x = e.touches[0].clientX - rect.left;
+    const y = e.touches[0].clientY - rect.top;
+    mouseRef.current.prevX = mouseRef.current.x;
+    mouseRef.current.prevY = mouseRef.current.y;
+    mouseRef.current.x = x;
+    mouseRef.current.y = y;
+    mouseRef.current.inside = true;
+  }, []);
+
+  void renderTick; // used for re-render trigger
 
   return (
     <Link
       to="/letters"
       className="home-card no-underline"
-      onMouseEnter={() => setHovered(true)}
-      onMouseLeave={() => setHovered(false)}
+      ref={containerRef}
+      onMouseMove={handleMouseMove}
+      onMouseLeave={handleMouseLeave}
+      onTouchMove={handleTouchMove}
+      onTouchEnd={handleMouseLeave}
     >
       {/* Title on LEFT */}
       <div className="absolute bottom-3 left-3 sm:bottom-5 sm:left-5 z-10">
@@ -296,12 +419,26 @@ export function LettersCard({ label }: { label: string }) {
           style={{ color: 'var(--text-heading)' }}>{label}</h3>
       </div>
 
-      {/* 5 scrolls — anchored to the right */}
-      <div className="absolute top-0 bottom-0 right-2 sm:right-3 flex items-stretch gap-3 sm:gap-4 py-1">
-        {SCROLL_DATA.map((s, i) => (
-          <LargeScroll key={s.id} open={hovered} delay={i * 120} />
-        ))}
-      </div>
+      {/* Floating letters */}
+      {stateRef.current.map((L, i) => {
+        const t = timeRef.current;
+        // Paper flutter: slight skewX oscillation for the wavy paper effect
+        const flutter = Math.sin(t * L.freq * 1.7 + L.phase) * 3;
+        const tilt = Math.sin(t * L.freq * 0.8 + L.phase + 1) * 2;
+        return (
+          <div key={i} className="absolute pointer-events-none" style={{
+            left: L.x,
+            top: L.y,
+            transform: `translate(-50%, -50%) rotate(${L.rot}deg) skewX(${flutter}deg) skewY(${tilt}deg) scale(${L.size})`,
+            opacity: L.opacity,
+            color: 'var(--text-secondary)',
+            willChange: 'transform',
+            filter: 'drop-shadow(1px 2px 3px rgba(0,0,0,0.08))',
+          }}>
+            <LetterSVG variant={L.variant} />
+          </div>
+        );
+      })}
     </Link>
   );
 }

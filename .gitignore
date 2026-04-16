@@ -28,4 +28,6 @@ dist-ssr
 
 # Ingestion raw sources — large, regeneratable
 scripts/*.pdf
+scripts/*.html
 scripts/release-the-sun*.txt
+scripts/dawn-breakers*.txt

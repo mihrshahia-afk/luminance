@@ -1116,6 +1116,68 @@ export const bookConfigs: BookConfig[] = [
       { id: 'priceless-pearl-16', title: 'A Unique Ministry', urlSegment: '16' },
     ],
   },
+
+  {
+    id: 'thief-in-the-night',
+    title: 'Thief in the Night',
+    author: 'William Sears',
+    category: 'other',
+    description: "An investigation of Biblical end-times prophecy, tracing how the return of Christ 'as a thief in the night' was fulfilled by the Báb and Bahá'u'lláh. Sears examines Daniel, Revelation, Isaiah, and Micah with the rigour of a detective story.",
+    urlPath: 'thief-in-the-night',
+    seedChapters: [
+      { id: 'thief-1', title: 'Part One — The Unsolved Problem', urlSegment: '1' },
+      { id: 'thief-2', title: 'Part Two — The Solution', urlSegment: '2' },
+      { id: 'thief-3', title: 'Part Three — The Proof', urlSegment: '3' },
+    ],
+  },
+
+  {
+    id: 'chosen-highway',
+    title: 'The Chosen Highway',
+    author: 'Lady Blomfield',
+    category: 'other',
+    description: "A memoir and chronicle of the Bahá'í Faith's central figures, drawn from personal interviews and first-hand accounts. Divided into four parts covering the Báb, Bahá'u'lláh, 'Abdu'l-Bahá, and supplementary documents and narratives.",
+    urlPath: 'chosen-highway',
+    seedChapters: [
+      { id: 'chosen-highway-1', title: 'Preface', urlSegment: '1' },
+    ],
+  },
+
+  {
+    id: 'bahaullah-king-glory',
+    title: "Bahá'u'lláh: The King of Glory",
+    author: 'H.M. Balyuzi',
+    category: 'other',
+    description: "Balyuzi's magnum opus — a comprehensive biography of Bahá'u'lláh tracing His life from His noble lineage in Núr to His ascension at Bahjí. Drawing on primary Persian sources and extensive scholarship, it remains the definitive biographical reference.",
+    urlPath: 'bahaullah-king-glory',
+    seedChapters: [
+      { id: 'kog-1', title: 'Preface', urlSegment: '1' },
+    ],
+  },
+
+  {
+    id: 'vignettes-abdulbaha',
+    title: "Vignettes from the Life of 'Abdu'l-Bahá",
+    author: 'Annamarie Honnold',
+    category: 'other',
+    description: "A collection of anecdotes and stories about 'Abdu'l-Bahá, gathered from pilgrims' notes, historical accounts, and believers' memoirs. Arranged thematically into 'His Pure Heart', 'His Kindly Heart', and 'His Radiant Heart'.",
+    urlPath: 'vignettes-abdulbaha',
+    seedChapters: [
+      { id: 'vignettes-1', title: 'Preface', urlSegment: '1' },
+    ],
+  },
+
+  {
+    id: 'stories-bahaullah',
+    title: "Stories of Bahá'u'lláh",
+    author: 'Ali-Akbar Furútan (comp. G.V. Barnes)',
+    category: 'other',
+    description: "Sixty stories drawn from the four volumes of Adib Taherzadeh's Revelation of Bahá'u'lláh, retold in a direct, accessible format. Each story illuminates a facet of Bahá'u'lláh's life, station, or teachings.",
+    urlPath: 'stories-bahaullah',
+    seedChapters: [
+      { id: 'stories-1', title: '1. He was heralded by the Báb', urlSegment: '1' },
+    ],
+  },
 ];
 
 export function getBookConfig(id: string): BookConfig | undefined {

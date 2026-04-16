@@ -5,38 +5,34 @@ const BAHAI_ORG = 'https://www.bahai.org';
 const STRUCTURE_KEY = 'luminance-book-structure';
 const CONTENT_KEY = 'luminance-book-content';
 
-// Per-book static content — each book has its own JSON file, loaded on demand
-// when the reader opens that book. Keyed as `__chapters` and `<urlSegment>`.
+// Per-book static content — each book has its own JSON file under /books/,
+// served as a static asset from public/books/. Loaded on demand via fetch()
+// when the reader opens that book.
 type BookStatic = Record<string, { title?: string; content?: string } | BookChapter[]>;
-
-// Vite collects every file under /books/ at build time; each entry is a
-// thunk that returns a Promise for the JSON module on first call.
-const bookLoaders = import.meta.glob('./books/*.json') as Record<string, () => Promise<{ default: BookStatic }>>;
 
 const bookCache: Record<string, BookStatic | null> = {};
 const bookPending: Record<string, Promise<BookStatic | null>> = {};
-
-function bookFileKey(bookId: string, lang: string): string {
-  return lang === 'en' ? `./books/${bookId}.json` : `./books/${bookId}.${lang}.json`;
-}
 
 async function loadBook(bookId: string, lang = 'en'): Promise<BookStatic | null> {
   const key = `${lang}/${bookId}`;
   if (key in bookCache) return bookCache[key];
   if (key in bookPending) return bookPending[key];
 
-  const fileKey = bookFileKey(bookId, lang);
-  const loader = bookLoaders[fileKey];
-  if (!loader) {
-    // No static file for this language — fall back to English if non-English
-    if (lang !== 'en') return loadBook(bookId, 'en');
-    bookCache[key] = null;
-    return null;
-  }
+  const fileName = lang === 'en' ? `${bookId}.json` : `${bookId}.${lang}.json`;
+  const url = `${import.meta.env.BASE_URL}books/${fileName}`;
 
-  bookPending[key] = loader()
-    .then(mod => { bookCache[key] = mod.default || (mod as unknown as BookStatic); return bookCache[key]; })
-    .catch(() => { bookCache[key] = null; return null; });
+  bookPending[key] = fetch(url)
+    .then(r => {
+      if (!r.ok) throw new Error(`HTTP ${r.status}`);
+      return r.json();
+    })
+    .then(data => { bookCache[key] = data; return data; })
+    .catch(() => {
+      // No static file for this language — fall back to English
+      if (lang !== 'en') return loadBook(bookId, 'en');
+      bookCache[key] = null;
+      return null;
+    });
 
   return bookPending[key];
 }

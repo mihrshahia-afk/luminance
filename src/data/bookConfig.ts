@@ -1178,6 +1178,30 @@ export const bookConfigs: BookConfig[] = [
       { id: 'stories-1', title: '1. He was heralded by the Báb', urlSegment: '1' },
     ],
   },
+
+  {
+    id: 'muhammad-islam',
+    title: 'Muḥammad and the Course of Islám',
+    author: 'H.M. Balyuzi',
+    category: 'other',
+    description: "A comprehensive study of the life of the Prophet Muḥammad and the subsequent history of Islám through the centuries — from its founding in seventh-century Arabia to the rise and fall of the Ottoman and Safavid empires.",
+    urlPath: 'muhammad-islam',
+    seedChapters: [
+      { id: 'muhammad-islam-1', title: 'Introduction', urlSegment: '1' },
+    ],
+  },
+
+  {
+    id: 'balyuzi-the-bab',
+    title: 'The Báb: The Herald of the Day of Days',
+    author: 'H.M. Balyuzi',
+    category: 'other',
+    description: "A detailed biography of the Báb, covering His ancestry, early life, Declaration, imprisonments, examinations, and martyrdom, drawing on Persian and Arabic primary sources. Includes maps, genealogy charts, and extensive scholarly notes.",
+    urlPath: 'balyuzi-the-bab',
+    seedChapters: [
+      { id: 'balyuzi-the-bab-1', title: 'Prologue', urlSegment: '1' },
+    ],
+  },
 ];
 
 export function getBookConfig(id: string): BookConfig | undefined {

@@ -201,9 +201,9 @@ interface LetterState {
   opacity: number;
 }
 
-const LETTER_COUNT = 4;
-const WIND_RADIUS = 120;   // px — mouse influence radius
-const WIND_STRENGTH = 0.35;
+const LETTER_COUNT = 12;
+const WIND_RADIUS = 130;   // px — mouse influence radius
+const WIND_STRENGTH = 0.4;
 const DRIFT_SPEED = 0.25;
 const FRICTION = 0.985;
 const ROT_FRICTION = 0.97;
@@ -226,59 +226,108 @@ function spawnLetter(w: number, h: number, edge?: number): LetterState {
     phase: Math.random() * Math.PI * 2,
     freq: 0.015 + Math.random() * 0.01,
     amp: 8 + Math.random() * 6,
-    size: 0.75 + Math.random() * 0.35,
+    size: 0.6 + Math.random() * 0.45,
     variant: Math.floor(Math.random() * 4),
-    opacity: 0.55 + Math.random() * 0.3,
+    opacity: 0.7 + Math.random() * 0.25,
   };
 }
 
-function LetterSVG({ variant }: { variant: number }) {
-  // Folded letter / parchment with scribble lines — 4 visual variants
+function LetterSVG({ variant, time }: { variant: number; time: number }) {
+  // Tall scroll-like parchment with wavy edges that undulate over time
+  // Each variant has different scribble patterns and proportions
+  const heights = [70, 80, 65, 75];
+  const h = heights[variant % 4];
+  const w = 32;
+  // Wavy edge amplitude varies with time for a "paper in wind" feel
+  const waveT = time * 0.04 + variant * 1.5;
+  const wL1 = Math.sin(waveT) * 1.5;
+  const wL2 = Math.sin(waveT + 1.2) * 2;
+  const wL3 = Math.sin(waveT + 2.4) * 1.8;
+  const wR1 = Math.sin(waveT + 0.7) * 1.5;
+  const wR2 = Math.sin(waveT + 1.9) * 2;
+  const wR3 = Math.sin(waveT + 3.1) * 1.8;
+
+  // Build wavy-edged paper path
+  const path = `
+    M ${4 + wL1} 4
+    Q ${3 + wL1} ${h * 0.25} ${4 + wL2} ${h * 0.4}
+    Q ${3 + wL2} ${h * 0.6} ${4 + wL3} ${h * 0.8}
+    L ${4 + wL3} ${h - 2}
+    Q ${w / 2} ${h + 1} ${w - 2 + wR3} ${h - 2}
+    L ${w - 2 + wR3} ${h * 0.8}
+    Q ${w - 1 + wR2} ${h * 0.6} ${w - 2 + wR2} ${h * 0.4}
+    Q ${w - 1 + wR1} ${h * 0.25} ${w - 2 + wR1} 4
+    Z
+  `;
+
+  // Parchment colors — visible on both light and dark themes
+  const fills = ['#E8DCC0', '#DDD0B0', '#E0D4B8', '#D8CCB0'];
+  const paperFill = fills[variant % 4];
+
+  // Scribble lines — positioned relative to the taller shape
   const scribbles = [
-    // Variant 0: neat lines with a seal
+    // Variant 0: heading + dense lines + wax seal
     <>
-      <line x1="8" y1="12" x2="32" y2="12" stroke="currentColor" strokeWidth="0.5" opacity="0.2" />
-      <line x1="8" y1="16" x2="28" y2="16" stroke="currentColor" strokeWidth="0.5" opacity="0.15" />
-      <line x1="8" y1="20" x2="30" y2="20" stroke="currentColor" strokeWidth="0.5" opacity="0.2" />
-      <line x1="8" y1="24" x2="24" y2="24" stroke="currentColor" strokeWidth="0.5" opacity="0.15" />
-      <circle cx="30" cy="30" r="3.5" fill="#C9A84C" opacity="0.25" />
-    </>,
-    // Variant 1: wavy scribbles, shorter
-    <>
-      <path d="M8 13 Q14 11 20 13 Q26 15 32 13" fill="none" stroke="currentColor" strokeWidth="0.5" opacity="0.18" />
-      <path d="M8 18 Q12 16 18 18 Q24 20 28 18" fill="none" stroke="currentColor" strokeWidth="0.5" opacity="0.15" />
-      <path d="M8 23 Q16 21 24 23" fill="none" stroke="currentColor" strokeWidth="0.5" opacity="0.18" />
-      <line x1="8" y1="28" x2="20" y2="28" stroke="currentColor" strokeWidth="0.5" opacity="0.12" />
-    </>,
-    // Variant 2: dense paragraph look
-    <>
-      {[11, 14, 17, 20, 23, 26, 29].map(y => (
-        <line key={y} x1="7" y1={y} x2={22 + Math.sin(y) * 8} y2={y}
-          stroke="currentColor" strokeWidth="0.4" opacity={0.12 + (y % 3) * 0.03} />
+      <line x1="10" y1="12" x2="24" y2="12" stroke="#8B7A5A" strokeWidth="0.6" opacity="0.3" />
+      {[18, 22, 26, 30, 34, 38, 42, 46, 50].map(y => (
+        <line key={y} x1="8" y1={y} x2={20 + (y * 7 % 9)} y2={y}
+          stroke="#8B7A5A" strokeWidth="0.35" opacity="0.2" />
       ))}
+      <circle cx="22" cy={h - 10} r="3" fill="#C9A84C" opacity="0.4" />
     </>,
-    // Variant 3: heading + body + signature
+    // Variant 1: wavy handwriting scribbles
     <>
-      <line x1="12" y1="10" x2="28" y2="10" stroke="currentColor" strokeWidth="0.7" opacity="0.2" />
-      <line x1="8" y1="15" x2="32" y2="15" stroke="currentColor" strokeWidth="0.4" opacity="0.13" />
-      <line x1="8" y1="18" x2="30" y2="18" stroke="currentColor" strokeWidth="0.4" opacity="0.13" />
-      <line x1="8" y1="21" x2="26" y2="21" stroke="currentColor" strokeWidth="0.4" opacity="0.13" />
-      <path d="M18 28 Q22 26 26 28 Q28 29 26 30" fill="none" stroke="currentColor" strokeWidth="0.5" opacity="0.18" />
+      {[14, 20, 26, 32, 38, 44, 50, 56].map(y => (
+        <path key={y}
+          d={`M8 ${y} Q${12 + (y % 5)} ${y - 1.5} ${18 + (y % 7)} ${y} Q${24 + (y % 4)} ${y + 1.5} ${27 + (y % 3)} ${y}`}
+          fill="none" stroke="#8B7A5A" strokeWidth="0.4" opacity="0.22" />
+      ))}
+      <path d={`M14 ${h - 8} Q18 ${h - 10} 22 ${h - 8} Q24 ${h - 7} 22 ${h - 6}`}
+        fill="none" stroke="#8B7A5A" strokeWidth="0.5" opacity="0.25" />
+    </>,
+    // Variant 2: formal letter — header, body, signature block
+    <>
+      <line x1="10" y1="10" x2="22" y2="10" stroke="#8B7A5A" strokeWidth="0.7" opacity="0.3" />
+      <line x1="8" y1="14" x2="16" y2="14" stroke="#8B7A5A" strokeWidth="0.35" opacity="0.18" />
+      <line x1="8" y1="17" x2="10" y2="17" stroke="#8B7A5A" strokeWidth="0.35" opacity="0.15" />
+      {[22, 26, 30, 34, 38, 42, 46].map(y => (
+        <line key={y} x1="8" y1={y} x2={18 + (y * 3 % 11)} y2={y}
+          stroke="#8B7A5A" strokeWidth="0.35" opacity="0.18" />
+      ))}
+      <line x1="14" y1={h - 12} x2="24" y2={h - 12} stroke="#8B7A5A" strokeWidth="0.5" opacity="0.22" />
+      <path d={`M16 ${h - 8} Q20 ${h - 10} 24 ${h - 8}`}
+        fill="none" stroke="#8B7A5A" strokeWidth="0.5" opacity="0.2" />
+    </>,
+    // Variant 3: sparse with decorative border line
+    <>
+      <rect x="7" y="8" width={w - 12} height={h - 16} rx="0.5"
+        fill="none" stroke="#C9A84C" strokeWidth="0.3" opacity="0.12" />
+      {[16, 22, 28, 34, 40, 46].map(y => (
+        <line key={y} x1="10" y1={y} x2={16 + (y * 5 % 10)} y2={y}
+          stroke="#8B7A5A" strokeWidth="0.35" opacity="0.2" />
+      ))}
+      <circle cx="17" cy={h - 10} r="2.5" fill="#C9A84C" opacity="0.3" />
     </>,
   ];
 
   return (
-    <svg viewBox="0 0 40 38" width="40" height="38" style={{ overflow: 'visible' }}>
-      {/* Paper body */}
-      <rect x="3" y="5" width="34" height="30" rx="1.5"
-        fill="var(--bg-card)"
-        stroke="rgba(201,168,76,0.2)" strokeWidth="0.8" />
-      {/* Folded corner */}
-      <path d="M29 5 L37 5 L37 13 Z" fill="var(--bg-page)" stroke="rgba(201,168,76,0.15)" strokeWidth="0.5" />
-      <path d="M29 5 L29 13 L37 13" fill="var(--bg-card)" stroke="rgba(201,168,76,0.12)" strokeWidth="0.5"
-        style={{ filter: 'brightness(0.95)' }} />
+    <svg viewBox={`0 0 ${w + 4} ${h + 4}`} width={w + 4} height={h + 4} style={{ overflow: 'visible' }}>
+      {/* Paper shadow */}
+      <path d={path} fill="rgba(0,0,0,0.08)" transform="translate(1.5, 2)" />
+      {/* Paper body with wavy edges */}
+      <path d={path} fill={paperFill}
+        stroke="rgba(160,140,100,0.3)" strokeWidth="0.5" />
+      {/* Aged paper texture — subtle gradient */}
+      <path d={path} fill="url(#parchGrad)" opacity="0.15" />
       {/* Scribble content */}
-      {scribbles[variant % scribbles.length]}
+      {scribbles[variant % 4]}
+      <defs>
+        <linearGradient id="parchGrad" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stopColor="#A08050" />
+          <stop offset="50%" stopColor="transparent" />
+          <stop offset="100%" stopColor="#8B7040" />
+        </linearGradient>
+      </defs>
     </svg>
   );
 }
@@ -422,20 +471,19 @@ export function LettersCard({ label }: { label: string }) {
       {/* Floating letters */}
       {stateRef.current.map((L, i) => {
         const t = timeRef.current;
-        // Paper flutter: slight skewX oscillation for the wavy paper effect
-        const flutter = Math.sin(t * L.freq * 1.7 + L.phase) * 3;
-        const tilt = Math.sin(t * L.freq * 0.8 + L.phase + 1) * 2;
+        // Paper flutter: skewX/Y oscillation for wavy paper-in-wind effect
+        const flutter = Math.sin(t * L.freq * 1.7 + L.phase) * 4;
+        const tilt = Math.sin(t * L.freq * 0.8 + L.phase + 1) * 2.5;
         return (
           <div key={i} className="absolute pointer-events-none" style={{
             left: L.x,
             top: L.y,
             transform: `translate(-50%, -50%) rotate(${L.rot}deg) skewX(${flutter}deg) skewY(${tilt}deg) scale(${L.size})`,
             opacity: L.opacity,
-            color: 'var(--text-secondary)',
             willChange: 'transform',
-            filter: 'drop-shadow(1px 2px 3px rgba(0,0,0,0.08))',
+            filter: 'drop-shadow(2px 3px 5px rgba(0,0,0,0.15))',
           }}>
-            <LetterSVG variant={L.variant} />
+            <LetterSVG variant={L.variant} time={t + i * 100} />
           </div>
         );
       })}

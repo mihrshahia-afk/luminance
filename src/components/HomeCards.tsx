@@ -233,131 +233,119 @@ function spawnLetter(w: number, h: number, edge?: number): LetterState {
 }
 
 function LetterSVG({ variant, time }: { variant: number; time: number }) {
-  // 1800s-style handwritten scroll with rolled ends, aged parchment, flowing ink
+  // 1800s scroll — fully wavy body with 3D curvature shading, no crossing lines
   const heights = [78, 88, 72, 82];
   const h = heights[variant % 4];
   const w = 38;
-  const gid = `pg${variant}`; // unique gradient id per variant
+  const gid = `pg${variant}`;
 
-  // Wavy edge undulation for paper-in-wind
-  const wt = time * 0.035 + variant * 2;
-  const wv = (i: number) => Math.sin(wt + i * 1.3) * 2;
+  // Animated wave function — drives all edge undulation + 3D shading
+  const wt = time * 0.03 + variant * 2.5;
+  const wave = (i: number, amp: number) => Math.sin(wt + i * 0.9) * amp;
 
-  // Aged parchment tones — warm yellowed paper, not white
+  // Aged parchment tones
   const fills = ['#C8B078', '#BFA86C', '#C4AA70', '#B8A068'];
   const darks = ['#A08050', '#988048', '#9C8450', '#907848'];
   const paper = fills[variant % 4];
   const edge = darks[variant % 4];
 
-  // Irregular top/bottom torn edges
-  const topEdge = `M 3 ${8 + wv(0)} Q 10 ${6 + wv(1)} 19 ${7.5 + wv(2)} Q 28 ${6.5 + wv(3)} ${w - 1} ${8 + wv(4)}`;
-  const botEdge = `M ${w - 1} ${h - 6 + wv(5)} Q 28 ${h - 4 + wv(6)} 19 ${h - 5.5 + wv(7)} Q 10 ${h - 4.5 + wv(8)} 3 ${h - 6 + wv(9)}`;
+  // Fully wavy body path — all 4 edges undulate
+  const lw1 = wave(0, 2.5), lw2 = wave(1, 3), lw3 = wave(2, 2.5);
+  const rw1 = wave(3, 2.5), rw2 = wave(4, 3), rw3 = wave(5, 2.5);
+  const tw1 = wave(6, 2), tw2 = wave(7, 1.5);
+  const bw1 = wave(8, 2), bw2 = wave(9, 1.5);
 
-  // Rolled scroll top and bottom — cylindrical shadow
+  const bodyPath = `
+    M ${4 + lw1} ${10 + tw1}
+    Q ${3 + lw1} ${h * 0.3} ${3.5 + lw2} ${h * 0.5}
+    Q ${3 + lw2} ${h * 0.7} ${4 + lw3} ${h - 8 + bw1}
+    Q ${w * 0.3} ${h - 5 + bw1} ${w * 0.5} ${h - 6 + bw2}
+    Q ${w * 0.7} ${h - 5 + bw2} ${w - 2 + rw3} ${h - 8 + bw1}
+    Q ${w - 1 + rw2} ${h * 0.7} ${w - 1.5 + rw2} ${h * 0.5}
+    Q ${w - 1 + rw1} ${h * 0.3} ${w - 2 + rw1} ${10 + tw2}
+    Q ${w * 0.7} ${8 + tw2} ${w * 0.5} ${9 + tw1}
+    Q ${w * 0.3} ${8 + tw1} ${4 + lw1} ${10 + tw1}
+    Z
+  `;
+
+  // 3D curvature bands — light/dark strips that follow the wave to simulate paper curling
+  const curveBands = [];
+  for (let i = 0; i < 4; i++) {
+    const frac = 0.2 + i * 0.2;
+    const y = 10 + frac * (h - 18);
+    const waveOffset = wave(i + 10, 2);
+    const isLight = i % 2 === 0;
+    curveBands.push(
+      <path key={i}
+        d={`M ${4 + wave(i, 2)} ${y + waveOffset} Q ${w * 0.5} ${y + waveOffset + wave(i + 5, 3)} ${w - 2 + wave(i + 3, 2)} ${y + waveOffset}`}
+        fill="none"
+        stroke={isLight ? 'rgba(255,255,240,0.12)' : 'rgba(80,60,30,0.08)'}
+        strokeWidth={isLight ? 8 : 6}
+        strokeLinecap="round"
+      />
+    );
+  }
+
+  // Scroll roll height
   const rollH = 5;
+  const topY = 10 + (tw1 + tw2) * 0.5;
+  const botY = h - 7 + (bw1 + bw2) * 0.5;
 
-  // Flowing cursive handwriting — bezier curves that look like real script
-  const inkColor = '#3B2810';
-  const cursiveLines = (seed: number) => {
-    const lines = [];
-    const count = 8 + (seed % 4);
-    for (let i = 0; i < count; i++) {
-      const y = 16 + i * ((h - 30) / count);
-      const lineLen = 14 + ((seed * 7 + i * 13) % 12);
-      const x0 = 7 + ((i * 3 + seed) % 4);
-      // Each "line" of handwriting is a wavy bezier that looks like cursive
-      const cp1x = x0 + lineLen * 0.25 + ((i * seed) % 3);
-      const cp1y = y - 1.2 + ((i * 7) % 3) * 0.6;
-      const cp2x = x0 + lineLen * 0.55 + ((i * 11) % 4);
-      const cp2y = y + 1.0 - ((i * 5) % 3) * 0.5;
-      const endX = x0 + lineLen;
-      lines.push(
-        <path key={i}
-          d={`M${x0} ${y} C${cp1x} ${cp1y} ${cp2x} ${cp2y} ${endX} ${y + ((i * 3) % 3 - 1) * 0.5}`}
-          fill="none" stroke={inkColor} strokeWidth={0.4 + ((i * 3) % 3) * 0.1}
-          opacity={0.35 + ((i * 7) % 4) * 0.05}
-          strokeLinecap="round" />
-      );
-    }
-    return lines;
-  };
-
-  // Variant-specific decorations
-  const decorations = [
-    // 0: wax seal (red) + date header
-    <>
-      <path d="M10 12 Q15 11 20 12" fill="none" stroke={inkColor} strokeWidth="0.6" opacity="0.35" strokeLinecap="round" />
-      <circle cx={w - 10} cy={h - 14} r="4" fill="#8B2020" opacity="0.6" />
-      <circle cx={w - 10} cy={h - 14} r="2.5" fill="#A03030" opacity="0.5" />
-      <path d={`M${w - 12} ${h - 14} L${w - 8} ${h - 14} M${w - 10} ${h - 16} L${w - 10} ${h - 12}`}
-        stroke="#C05050" strokeWidth="0.4" opacity="0.4" />
-    </>,
-    // 1: gold wax seal + ornamental header flourish
-    <>
-      <path d="M8 11 Q12 9 16 11 Q20 13 24 11" fill="none" stroke={inkColor} strokeWidth="0.5" opacity="0.3" strokeLinecap="round" />
-      <circle cx={w - 10} cy={h - 14} r="3.5" fill="#B8963C" opacity="0.55" />
-      <circle cx={w - 10} cy={h - 14} r="2" fill="#C9A84C" opacity="0.5" />
-    </>,
-    // 2: formal signature + fold crease line
-    <>
-      <line x1="4" y1={h * 0.5} x2={w - 2} y2={h * 0.5} stroke={edge} strokeWidth="0.3" opacity="0.12" strokeDasharray="1 2" />
-      <path d={`M14 ${h - 12} Q18 ${h - 16} 22 ${h - 12} Q25 ${h - 10} 28 ${h - 12}`}
-        fill="none" stroke={inkColor} strokeWidth="0.6" opacity="0.4" strokeLinecap="round" />
-    </>,
-    // 3: stamp mark + ornate border
-    <>
-      <rect x="6" y="10" width={w - 10} height={h - 20} rx="1" fill="none" stroke={edge} strokeWidth="0.3" opacity="0.15" />
-      <rect x={w - 14} y="11" width="7" height="5" rx="0.5" fill="#6B4030" opacity="0.2" />
-      <line x1={w - 13} y1="13" x2={w - 8} y2="13" stroke="#6B4030" strokeWidth="0.3" opacity="0.15" />
-      <line x1={w - 12} y1="14.5" x2={w - 9} y2="14.5" stroke="#6B4030" strokeWidth="0.3" opacity="0.12" />
-    </>,
+  // Wax seal — only on some variants, no crossing lines
+  const seals = [
+    <><circle cx={w - 10} cy={h - 16} r="4" fill="#8B2020" opacity="0.55" />
+      <circle cx={w - 10} cy={h - 16} r="2.2" fill="#A03030" opacity="0.45" /></>,
+    <><circle cx={w - 10} cy={h - 16} r="3.5" fill="#B8963C" opacity="0.5" />
+      <circle cx={w - 10} cy={h - 16} r="1.8" fill="#C9A84C" opacity="0.45" /></>,
+    null,
+    <><circle cx={w - 10} cy={h - 16} r="3" fill="#8B2020" opacity="0.5" />
+      <circle cx={w - 10} cy={h - 16} r="1.5" fill="#A03030" opacity="0.4" /></>,
   ];
 
   return (
-    <svg viewBox={`0 0 ${w + 2} ${h + 2}`} width={w + 2} height={h + 2} style={{ overflow: 'visible' }}>
+    <svg viewBox={`0 0 ${w + 4} ${h + 4}`} width={w + 4} height={h + 4} style={{ overflow: 'visible' }}>
       <defs>
-        {/* Aged parchment gradient */}
-        <linearGradient id={gid} x1="0" y1="0" x2="1" y2="1">
+        <linearGradient id={gid} x1="0.1" y1="0" x2="0.9" y2="1">
           <stop offset="0%" stopColor={paper} />
-          <stop offset="30%" stopColor={fills[(variant + 1) % 4]} />
-          <stop offset="70%" stopColor={paper} />
+          <stop offset="40%" stopColor={fills[(variant + 1) % 4]} />
+          <stop offset="60%" stopColor={paper} />
           <stop offset="100%" stopColor={darks[(variant + 2) % 4]} />
         </linearGradient>
+        <clipPath id={`clip${variant}`}><path d={bodyPath} /></clipPath>
       </defs>
 
       {/* Drop shadow */}
-      <path d={`${topEdge} L ${w - 1} ${h - 6} ${botEdge} L 3 8 Z`}
-        fill="rgba(0,0,0,0.12)" transform="translate(2, 2.5)" />
+      <path d={bodyPath} fill="rgba(0,0,0,0.15)" transform="translate(2.5, 3)" />
 
-      {/* Main parchment body — aged, uneven edges */}
-      <path d={`${topEdge} L ${w - 1} ${h - 6} ${botEdge} L 3 8 Z`}
-        fill={`url(#${gid})`} stroke={edge} strokeWidth="0.4" opacity="0.95" />
+      {/* Main parchment body */}
+      <path d={bodyPath} fill={`url(#${gid})`} stroke={edge} strokeWidth="0.5" />
 
-      {/* Coffee stain / age spots */}
-      <circle cx={10 + variant * 4} cy={20 + variant * 8} r={4 + variant} fill={edge} opacity="0.06" />
-      <circle cx={w - 8 - variant * 2} cy={h - 20 + variant * 3} r={3} fill={darks[(variant + 1) % 4]} opacity="0.05" />
+      {/* 3D curvature shading bands (clipped to body) */}
+      <g clipPath={`url(#clip${variant})`}>
+        {curveBands}
+        {/* Age spots */}
+        <circle cx={12 + variant * 3} cy={25 + variant * 6} r={5} fill={edge} opacity="0.05" />
+        <circle cx={w - 6 - variant * 2} cy={h - 22} r={3.5} fill={darks[(variant + 1) % 4]} opacity="0.04" />
+      </g>
 
-      {/* Top scroll roll — gives a cylinder effect */}
-      <ellipse cx={w / 2 + 1} cy={8 + wv(0)} rx={w / 2 - 1} ry={rollH / 2}
-        fill={edge} opacity="0.5" />
-      <ellipse cx={w / 2 + 1} cy={8 + wv(0)} rx={w / 2 - 1} ry={rollH / 2 - 1}
-        fill={paper} opacity="0.7" />
-      <ellipse cx={w / 2 + 1} cy={8 + wv(0) - 0.5} rx={w / 2 - 4} ry={1}
-        fill="rgba(255,255,255,0.15)" />
+      {/* Top scroll roll */}
+      <ellipse cx={w / 2 + 1} cy={topY} rx={w / 2} ry={rollH / 2 + 0.5}
+        fill={edge} opacity="0.55" />
+      <ellipse cx={w / 2 + 1} cy={topY} rx={w / 2} ry={rollH / 2}
+        fill={paper} opacity="0.75" />
+      <ellipse cx={w / 2 + 1} cy={topY - 0.8} rx={w / 2 - 3} ry={1.2}
+        fill="rgba(255,255,240,0.2)" />
 
       {/* Bottom scroll roll */}
-      <ellipse cx={w / 2 + 1} cy={h - 6 + wv(5)} rx={w / 2 - 1} ry={rollH / 2}
-        fill={edge} opacity="0.5" />
-      <ellipse cx={w / 2 + 1} cy={h - 6 + wv(5)} rx={w / 2 - 1} ry={rollH / 2 - 1}
-        fill={paper} opacity="0.7" />
-      <ellipse cx={w / 2 + 1} cy={h - 6 + wv(5) + 0.5} rx={w / 2 - 4} ry={1}
-        fill="rgba(255,255,255,0.12)" />
+      <ellipse cx={w / 2 + 1} cy={botY} rx={w / 2} ry={rollH / 2 + 0.5}
+        fill={edge} opacity="0.55" />
+      <ellipse cx={w / 2 + 1} cy={botY} rx={w / 2} ry={rollH / 2}
+        fill={paper} opacity="0.75" />
+      <ellipse cx={w / 2 + 1} cy={botY + 0.8} rx={w / 2 - 3} ry={1.2}
+        fill="rgba(255,255,240,0.15)" />
 
-      {/* Flowing cursive handwriting */}
-      {cursiveLines(variant * 17 + 3)}
-
-      {/* Variant-specific decoration (seal, stamp, etc.) */}
-      {decorations[variant % 4]}
+      {/* Wax seal (some variants only) */}
+      {seals[variant % 4]}
     </svg>
   );
 }

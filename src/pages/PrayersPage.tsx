@@ -28,7 +28,7 @@ function TopicLanding({ onSelect }: { onSelect: (t: PrayerTopic) => void }) {
       <div className="mb-10">
         <p className="section-label">Bah&aacute;&rsquo;&iacute; Prayers</p>
         <h1 className="page-title text-[clamp(1.8rem,4vw,2.6rem)]">Prayers</h1>
-        <p className="text-sm text-muted m-0">{prayers.length} prayers across {prayerTopics.length} topics</p>
+        <p className="text-sm text-muted m-0">Food for the soul</p>
       </div>
 
       {TOPIC_GROUPS.map(group => (

@@ -1,6 +1,6 @@
 import { useState, useCallback, useEffect, useRef, useMemo } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
-import { MessageSquare, List, Star, Loader2, ExternalLink, X, CornerDownRight, CornerDownLeft } from 'lucide-react';
+import { MessageSquare, List, Star, Loader2, ExternalLink, X, CornerDownRight, CornerDownLeft, ChevronDown } from 'lucide-react';
 import { getBookConfig } from '../data/bookConfig';
 import type { BookChapter } from '../data/bookConfig';
 import { discoverChapters, fetchChapter, getCachedChapter } from '../data/bookFetcher';
@@ -193,6 +193,7 @@ export default function BookReaderPage() {
   const [showCover, setShowCover] = useState(true);
   const [pageTransition, setPageTransition] = useState<'none' | 'next' | 'prev'>('none');
   const [coverOpening, setCoverOpening] = useState(false);
+  const [descExpanded, setDescExpanded] = useState(false);
 
   const config = getBookConfig(bookId || '');
 
@@ -575,6 +576,28 @@ export default function BookReaderPage() {
                   {chapters.length} {chapters.length === 1 ? 'chapter' : 'chapters'}
                   {progress ? ` · ${progress.chaptersRead.length} read` : ''}
                 </p>
+
+                {/* Expandable description */}
+                {config.description && (
+                  <div className="mt-6 max-w-md mx-auto w-full">
+                    <div className="overflow-hidden transition-all duration-500 ease-in-out"
+                      style={{ maxHeight: descExpanded ? '500px' : '0px', opacity: descExpanded ? 1 : 0 }}>
+                      <p className="text-sm text-secondary font-reading leading-relaxed m-0 px-2 pb-2 text-center">
+                        {config.description}
+                      </p>
+                    </div>
+                    <button
+                      onClick={(e) => { e.preventDefault(); e.stopPropagation(); setDescExpanded(!descExpanded); }}
+                      className="flex items-center gap-1 mx-auto mt-1 px-3 py-1.5 text-[0.65rem] text-muted/60 font-body bg-transparent border-none cursor-pointer hover:text-gold transition-colors"
+                    >
+                      <span>{descExpanded ? 'Hide description' : 'About this book'}</span>
+                      <ChevronDown size={12} style={{
+                        transform: descExpanded ? 'rotate(180deg)' : 'rotate(0deg)',
+                        transition: 'transform 0.3s ease',
+                      }} />
+                    </button>
+                  </div>
+                )}
               </>
             )}
           </div>

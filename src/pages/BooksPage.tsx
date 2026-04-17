@@ -81,8 +81,7 @@ export default function BooksPage() {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {items.map(book => {
               const progress = getBookProgress(book.id);
-              // Use current seedChapters as the source of truth for total count
-              const totalCh = book.seedChapters.length;
+              const totalCh = book.chapterCount ?? book.seedChapters.length;
               // Only count chapters that exist in current book config
               const currentChapterIds = new Set(book.seedChapters.map(c => c.id));
               const validRead = progress

@@ -14,6 +14,8 @@ export interface BookConfig {
   // Seed chapters — used immediately before discovery completes.
   // Discovery will expand this list with all chapters found on bahai.org.
   seedChapters: BookChapter[];
+  // Override chapter count for display on BooksPage when seedChapters is a subset
+  chapterCount?: number;
 }
 
 export const bookConfigs: BookConfig[] = [
@@ -995,8 +997,9 @@ export const bookConfigs: BookConfig[] = [
     title: 'Release the Sun',
     author: 'William Sears',
     category: 'other',
-    description: 'A narrative history of the early Bábí dispensation — from the heralding of the Báb in 1844 through His martyrdom in 1850 — written for a Western audience. Sears retells the story through the eyes of its participants, drawing on primary sources to dramatize the dawn of a new religious cycle.',
+    description: 'Millennial fervour gripped many people around the world in the early nineteenth century. While Christians anticipated the return of Jesus Christ, a wave of expectation swept through Islam that the Lord of the Age would soon appear. In Persia, this reached a dramatic climax on May 23, 1844, when a young merchant from Shiraz announced that He was the bearer of a divine Revelation destined to transform the spiritual life of the human race.',
     urlPath: 'release-the-sun',
+    chapterCount: 21,
     seedChapters: [
       { id: 'release-the-sun-foreword', title: 'Foreword', urlSegment: 'foreword' },
       { id: 'release-the-sun-prologue', title: 'Prologue', urlSegment: 'prologue' },
@@ -1027,8 +1030,9 @@ export const bookConfigs: BookConfig[] = [
     title: 'The Dawn-Breakers',
     author: 'Nabíl-i-Aʿẓam (tr. Shoghi Effendi)',
     category: 'other',
-    description: "Nabíl's Narrative of the Early Days of the Bahá'í Revelation — the authoritative chronicle of the Bábí dispensation from 1844 to 1853, translated and edited by Shoghi Effendi. Covers the missions of Shaykh Aḥmad and Siyyid Káẓim, the Declaration of the Báb, the Bábí upheavals, and the Martyrdom of the Báb.",
+    description: "Nabíl'The most comprehensive and authoritative eyewitness account of the beginnings of the Bahá'í era — a priceless resource for those wishing to better understand early Bahá'í history, its connection to the Bábí religion, and the implications of this history for today.'í Revelation — the authoritative chronicle of the Bábí dispensation from 1844 to 1853, translated and edited by Shoghi Effendi. Covers the missions of Shaykh Aḥmad and Siyyid Káẓim, the Declaration of the Báb, the Bábí upheavals, and the Martyrdom of the Báb.",
     urlPath: 'dawn-breakers',
+    chapterCount: 28,
     seedChapters: [
       { id: 'dawn-breakers-intro', title: 'Introduction', urlSegment: 'intro' },
       { id: 'dawn-breakers-1', title: 'I. The Mission of Shaykh Aḥmad-i-Aḥsá\'í', urlSegment: '1' },
@@ -1066,8 +1070,9 @@ export const bookConfigs: BookConfig[] = [
     title: 'Portals to Freedom',
     author: 'Howard Colby Ives',
     category: 'other',
-    description: "A personal account of the author's encounters with 'Abdu'l-Bahá during His journeys through America in 1912. Ives, a Unitarian minister, chronicles his transformation from a sceptical clergyman to an ardent Bahá'í — offering one of the most intimate portraits of 'Abdu'l-Bahá.",
+    description: "A personal account of the author'A classic and vivid portrait of 'Abdu'l-Bahá by one of His own disciples, a former Unitarian minister — a personal record which brings the historical figure of 'Abdu'l-Bahá to warm life, and His message close to the heart.'Abdu'l-Bahá during His journeys through America in 1912. Ives, a Unitarian minister, chronicles his transformation from a sceptical clergyman to an ardent Bahá'í — offering one of the most intimate portraits of 'Abdu'l-Bahá.",
     urlPath: 'portals-to-freedom',
+    chapterCount: 18,
     seedChapters: [
       { id: 'portals-to-freedom-1', title: 'Introduction', urlSegment: '1' },
       { id: 'portals-to-freedom-2', title: 'Chapter I', urlSegment: '2' },
@@ -1095,8 +1100,8 @@ export const bookConfigs: BookConfig[] = [
     title: 'The Priceless Pearl',
     author: 'Rúḥíyyih Khánum',
     category: 'other',
-    description: "The definitive biography of Shoghi Effendi, Guardian of the Bahá'í Faith from 1921 to 1957, written by his wife Rúḥíyyih Khánum. Spans his childhood, the burden of the Guardianship, the growth of the Administrative Order, the Ten Year Crusade, and his passing.",
-    urlPath: 'priceless-pearl',
+    description: "The definitive biography of Shoghi Effendi, Guardian of the Bahá'An appraisal of the life and work of Shoghi Effendi, the Guardian and World Head of the Bahá'í Faith for thirty-six years. Written by his widow, who served as his personal secretary, the narrative chronicles significant events marked by both sorrow and drama, victory and crisis.'priceless-pearl',
+    chapterCount: 16,
     seedChapters: [
       { id: 'priceless-pearl-1', title: 'The Childhood and Youth of Shoghi Effendi', urlSegment: '1' },
       { id: 'priceless-pearl-2', title: "The Passing of 'Abdu'l-Bahá and Its Immediate Consequences", urlSegment: '2' },
@@ -1122,8 +1127,9 @@ export const bookConfigs: BookConfig[] = [
     title: 'Thief in the Night',
     author: 'William Sears',
     category: 'other',
-    description: "An investigation of Biblical end-times prophecy, tracing how the return of Christ 'as a thief in the night' was fulfilled by the Báb and Bahá'u'lláh. Sears examines Daniel, Revelation, Isaiah, and Micah with the rigour of a detective story.",
+    description: "An investigation of Biblical end-times prophecy, tracing how the return of Christ 'This is a mystery story with a difference: the mystery is a real one and of vital importance to every human being. In the first half of the nineteenth century, there was worldwide and fervent expectation that during the 1840s the return of Christ would take place. The author presents the evidence in such a way that you can solve it for yourself.' was fulfilled by the Báb and Bahá'u'lláh. Sears examines Daniel, Revelation, Isaiah, and Micah with the rigour of a detective story.",
     urlPath: 'thief-in-the-night',
+    chapterCount: 69,
     seedChapters: [
       { id: 'thief-1', title: 'Part One — The Unsolved Problem', urlSegment: '1' },
       { id: 'thief-2', title: 'Part Two — The Solution', urlSegment: '2' },
@@ -1136,8 +1142,9 @@ export const bookConfigs: BookConfig[] = [
     title: 'The Chosen Highway',
     author: 'Lady Blomfield',
     category: 'other',
-    description: "A memoir and chronicle of the Bahá'í Faith's central figures, drawn from personal interviews and first-hand accounts. Divided into four parts covering the Báb, Bahá'u'lláh, 'Abdu'l-Bahá, and supplementary documents and narratives.",
+    description: "A memoir and chronicle of the Bahá'Spoken accounts recorded from the ladies of Bahá'u'lláh's family during Lady Blomfield's 1922 visit to Haifa. The Greatest Holy Leaf shared stories of childhood and youth during the imprisonment and exiles of Bahá'u'lláh — an attempt to indicate some phases of a great historic moment in spiritual civilisation.'s central figures, drawn from personal interviews and first-hand accounts. Divided into four parts covering the Báb, Bahá'u'lláh, 'Abdu'l-Bahá, and supplementary documents and narratives.",
     urlPath: 'chosen-highway',
+    chapterCount: 47,
     seedChapters: [
       { id: 'chosen-highway-1', title: 'Preface', urlSegment: '1' },
     ],
@@ -1148,8 +1155,9 @@ export const bookConfigs: BookConfig[] = [
     title: "Bahá'u'lláh: The King of Glory",
     author: 'H.M. Balyuzi',
     category: 'other',
-    description: "Balyuzi's magnum opus — a comprehensive biography of Bahá'u'lláh tracing His life from His noble lineage in Núr to His ascension at Bahjí. Drawing on primary Persian sources and extensive scholarship, it remains the definitive biographical reference.",
+    description: "Balyuzi'Bahá'u'lláh's life presented within its historical context across Iran and the broader world. Balyuzi draws extensively from unpublished memoirs of contemporary observers, covering His ancestry, exiles from Iran, travels to Constantinople and 'Akká, and the final years at Bahjí.'u'lláh tracing His life from His noble lineage in Núr to His ascension at Bahjí. Drawing on primary Persian sources and extensive scholarship, it remains the definitive biographical reference.",
     urlPath: 'bahaullah-king-glory',
+    chapterCount: 43,
     seedChapters: [
       { id: 'kog-1', title: 'Preface', urlSegment: '1' },
     ],
@@ -1160,8 +1168,9 @@ export const bookConfigs: BookConfig[] = [
     title: "Vignettes from the Life of 'Abdu'l-Bahá",
     author: 'Annamarie Honnold',
     category: 'other',
-    description: "A collection of anecdotes and stories about 'Abdu'l-Bahá, gathered from pilgrims' notes, historical accounts, and believers' memoirs. Arranged thematically into 'His Pure Heart', 'His Kindly Heart', and 'His Radiant Heart'.",
+    description: "A collection of anecdotes and stories about 'A unique collection of stories, sayings and comments, providing a special insight into the life, character, and station of 'Abdu'l-Bahá. Features over 250 vignettes drawn from published, out-of-print, and unpublished sources, organised into three sections: His Pure Heart, His Kindly Heart, and His Radiant Heart.'l-Bahá, gathered from pilgrims' notes, historical accounts, and believers' memoirs. Arranged thematically into 'His Pure Heart', 'His Kindly Heart', and 'His Radiant Heart'.",
     urlPath: 'vignettes-abdulbaha',
+    chapterCount: 7,
     seedChapters: [
       { id: 'vignettes-1', title: 'Preface', urlSegment: '1' },
     ],
@@ -1172,8 +1181,9 @@ export const bookConfigs: BookConfig[] = [
     title: "Stories of Bahá'u'lláh",
     author: 'Ali-Akbar Furútan (comp. G.V. Barnes)',
     category: 'other',
-    description: "Sixty stories drawn from the four volumes of Adib Taherzadeh's Revelation of Bahá'u'lláh, retold in a direct, accessible format. Each story illuminates a facet of Bahá'u'lláh's life, station, or teachings.",
+    description: "Sixty stories drawn from the four volumes of Adib Taherzadeh'Captivating anecdotes that transport readers to pivotal moments in Bahá'u'lláh's earthly life across Iran, Baghdád, Constantinople, Adrianople, 'Akká, and Bahjí. Gathered from hundreds of memoirs from published and manuscript sources, corresponding with surviving companions to curate the most vivid and instructive stories.'u'lláh, retold in a direct, accessible format. Each story illuminates a facet of Bahá'u'lláh's life, station, or teachings.",
     urlPath: 'stories-bahaullah',
+    chapterCount: 180,
     seedChapters: [
       { id: 'stories-1', title: '1. He was heralded by the Báb', urlSegment: '1' },
     ],
@@ -1185,7 +1195,8 @@ export const bookConfigs: BookConfig[] = [
     author: 'H.M. Balyuzi',
     category: 'other',
     description: "A comprehensive study of the life of the Prophet Muḥammad and the subsequent history of Islám through the centuries — from its founding in seventh-century Arabia to the rise and fall of the Ottoman and Safavid empires.",
-    urlPath: 'muhammad-islam',
+    urlPath: 'A sympathetic account of a world religion whose adherents today number over a billion. Contains a full biography of the Prophet and a history of Islám from the years of His mission to the nineteenth century.',
+    chapterCount: 37,
     seedChapters: [
       { id: 'muhammad-islam-1', title: 'Introduction', urlSegment: '1' },
     ],
@@ -1197,7 +1208,8 @@ export const bookConfigs: BookConfig[] = [
     author: 'H.M. Balyuzi',
     category: 'other',
     description: "A detailed biography of the Báb, covering His ancestry, early life, Declaration, imprisonments, examinations, and martyrdom, drawing on Persian and Arabic primary sources. Includes maps, genealogy charts, and extensive scholarly notes.",
-    urlPath: 'balyuzi-the-bab',
+    urlPath: 'A comprehensive biography of the Forerunner of the Bahá'í Faith by one of its foremost scholars. It examines the Báb's brief six-year ministry (1844–50) during nineteenth-century Iran, drawing extensively on official documents and family archives.',
+    chapterCount: 13,
     seedChapters: [
       { id: 'balyuzi-the-bab-1', title: 'Prologue', urlSegment: '1' },
     ],

@@ -233,101 +233,131 @@ function spawnLetter(w: number, h: number, edge?: number): LetterState {
 }
 
 function LetterSVG({ variant, time }: { variant: number; time: number }) {
-  // Tall scroll-like parchment with wavy edges that undulate over time
-  // Each variant has different scribble patterns and proportions
-  const heights = [70, 80, 65, 75];
+  // 1800s-style handwritten scroll with rolled ends, aged parchment, flowing ink
+  const heights = [78, 88, 72, 82];
   const h = heights[variant % 4];
-  const w = 32;
-  // Wavy edge amplitude varies with time for a "paper in wind" feel
-  const waveT = time * 0.04 + variant * 1.5;
-  const wL1 = Math.sin(waveT) * 1.5;
-  const wL2 = Math.sin(waveT + 1.2) * 2;
-  const wL3 = Math.sin(waveT + 2.4) * 1.8;
-  const wR1 = Math.sin(waveT + 0.7) * 1.5;
-  const wR2 = Math.sin(waveT + 1.9) * 2;
-  const wR3 = Math.sin(waveT + 3.1) * 1.8;
+  const w = 38;
+  const gid = `pg${variant}`; // unique gradient id per variant
 
-  // Build wavy-edged paper path
-  const path = `
-    M ${4 + wL1} 4
-    Q ${3 + wL1} ${h * 0.25} ${4 + wL2} ${h * 0.4}
-    Q ${3 + wL2} ${h * 0.6} ${4 + wL3} ${h * 0.8}
-    L ${4 + wL3} ${h - 2}
-    Q ${w / 2} ${h + 1} ${w - 2 + wR3} ${h - 2}
-    L ${w - 2 + wR3} ${h * 0.8}
-    Q ${w - 1 + wR2} ${h * 0.6} ${w - 2 + wR2} ${h * 0.4}
-    Q ${w - 1 + wR1} ${h * 0.25} ${w - 2 + wR1} 4
-    Z
-  `;
+  // Wavy edge undulation for paper-in-wind
+  const wt = time * 0.035 + variant * 2;
+  const wv = (i: number) => Math.sin(wt + i * 1.3) * 2;
 
-  // Parchment colors — visible on both light and dark themes
-  const fills = ['#E8DCC0', '#DDD0B0', '#E0D4B8', '#D8CCB0'];
-  const paperFill = fills[variant % 4];
+  // Aged parchment tones — warm yellowed paper, not white
+  const fills = ['#C8B078', '#BFA86C', '#C4AA70', '#B8A068'];
+  const darks = ['#A08050', '#988048', '#9C8450', '#907848'];
+  const paper = fills[variant % 4];
+  const edge = darks[variant % 4];
 
-  // Scribble lines — positioned relative to the taller shape
-  const scribbles = [
-    // Variant 0: heading + dense lines + wax seal
+  // Irregular top/bottom torn edges
+  const topEdge = `M 3 ${8 + wv(0)} Q 10 ${6 + wv(1)} 19 ${7.5 + wv(2)} Q 28 ${6.5 + wv(3)} ${w - 1} ${8 + wv(4)}`;
+  const botEdge = `M ${w - 1} ${h - 6 + wv(5)} Q 28 ${h - 4 + wv(6)} 19 ${h - 5.5 + wv(7)} Q 10 ${h - 4.5 + wv(8)} 3 ${h - 6 + wv(9)}`;
+
+  // Rolled scroll top and bottom — cylindrical shadow
+  const rollH = 5;
+
+  // Flowing cursive handwriting — bezier curves that look like real script
+  const inkColor = '#3B2810';
+  const cursiveLines = (seed: number) => {
+    const lines = [];
+    const count = 8 + (seed % 4);
+    for (let i = 0; i < count; i++) {
+      const y = 16 + i * ((h - 30) / count);
+      const lineLen = 14 + ((seed * 7 + i * 13) % 12);
+      const x0 = 7 + ((i * 3 + seed) % 4);
+      // Each "line" of handwriting is a wavy bezier that looks like cursive
+      const cp1x = x0 + lineLen * 0.25 + ((i * seed) % 3);
+      const cp1y = y - 1.2 + ((i * 7) % 3) * 0.6;
+      const cp2x = x0 + lineLen * 0.55 + ((i * 11) % 4);
+      const cp2y = y + 1.0 - ((i * 5) % 3) * 0.5;
+      const endX = x0 + lineLen;
+      lines.push(
+        <path key={i}
+          d={`M${x0} ${y} C${cp1x} ${cp1y} ${cp2x} ${cp2y} ${endX} ${y + ((i * 3) % 3 - 1) * 0.5}`}
+          fill="none" stroke={inkColor} strokeWidth={0.4 + ((i * 3) % 3) * 0.1}
+          opacity={0.35 + ((i * 7) % 4) * 0.05}
+          strokeLinecap="round" />
+      );
+    }
+    return lines;
+  };
+
+  // Variant-specific decorations
+  const decorations = [
+    // 0: wax seal (red) + date header
     <>
-      <line x1="10" y1="12" x2="24" y2="12" stroke="#8B7A5A" strokeWidth="0.6" opacity="0.3" />
-      {[18, 22, 26, 30, 34, 38, 42, 46, 50].map(y => (
-        <line key={y} x1="8" y1={y} x2={20 + (y * 7 % 9)} y2={y}
-          stroke="#8B7A5A" strokeWidth="0.35" opacity="0.2" />
-      ))}
-      <circle cx="22" cy={h - 10} r="3" fill="#C9A84C" opacity="0.4" />
+      <path d="M10 12 Q15 11 20 12" fill="none" stroke={inkColor} strokeWidth="0.6" opacity="0.35" strokeLinecap="round" />
+      <circle cx={w - 10} cy={h - 14} r="4" fill="#8B2020" opacity="0.6" />
+      <circle cx={w - 10} cy={h - 14} r="2.5" fill="#A03030" opacity="0.5" />
+      <path d={`M${w - 12} ${h - 14} L${w - 8} ${h - 14} M${w - 10} ${h - 16} L${w - 10} ${h - 12}`}
+        stroke="#C05050" strokeWidth="0.4" opacity="0.4" />
     </>,
-    // Variant 1: wavy handwriting scribbles
+    // 1: gold wax seal + ornamental header flourish
     <>
-      {[14, 20, 26, 32, 38, 44, 50, 56].map(y => (
-        <path key={y}
-          d={`M8 ${y} Q${12 + (y % 5)} ${y - 1.5} ${18 + (y % 7)} ${y} Q${24 + (y % 4)} ${y + 1.5} ${27 + (y % 3)} ${y}`}
-          fill="none" stroke="#8B7A5A" strokeWidth="0.4" opacity="0.22" />
-      ))}
-      <path d={`M14 ${h - 8} Q18 ${h - 10} 22 ${h - 8} Q24 ${h - 7} 22 ${h - 6}`}
-        fill="none" stroke="#8B7A5A" strokeWidth="0.5" opacity="0.25" />
+      <path d="M8 11 Q12 9 16 11 Q20 13 24 11" fill="none" stroke={inkColor} strokeWidth="0.5" opacity="0.3" strokeLinecap="round" />
+      <circle cx={w - 10} cy={h - 14} r="3.5" fill="#B8963C" opacity="0.55" />
+      <circle cx={w - 10} cy={h - 14} r="2" fill="#C9A84C" opacity="0.5" />
     </>,
-    // Variant 2: formal letter — header, body, signature block
+    // 2: formal signature + fold crease line
     <>
-      <line x1="10" y1="10" x2="22" y2="10" stroke="#8B7A5A" strokeWidth="0.7" opacity="0.3" />
-      <line x1="8" y1="14" x2="16" y2="14" stroke="#8B7A5A" strokeWidth="0.35" opacity="0.18" />
-      <line x1="8" y1="17" x2="10" y2="17" stroke="#8B7A5A" strokeWidth="0.35" opacity="0.15" />
-      {[22, 26, 30, 34, 38, 42, 46].map(y => (
-        <line key={y} x1="8" y1={y} x2={18 + (y * 3 % 11)} y2={y}
-          stroke="#8B7A5A" strokeWidth="0.35" opacity="0.18" />
-      ))}
-      <line x1="14" y1={h - 12} x2="24" y2={h - 12} stroke="#8B7A5A" strokeWidth="0.5" opacity="0.22" />
-      <path d={`M16 ${h - 8} Q20 ${h - 10} 24 ${h - 8}`}
-        fill="none" stroke="#8B7A5A" strokeWidth="0.5" opacity="0.2" />
+      <line x1="4" y1={h * 0.5} x2={w - 2} y2={h * 0.5} stroke={edge} strokeWidth="0.3" opacity="0.12" strokeDasharray="1 2" />
+      <path d={`M14 ${h - 12} Q18 ${h - 16} 22 ${h - 12} Q25 ${h - 10} 28 ${h - 12}`}
+        fill="none" stroke={inkColor} strokeWidth="0.6" opacity="0.4" strokeLinecap="round" />
     </>,
-    // Variant 3: sparse with decorative border line
+    // 3: stamp mark + ornate border
     <>
-      <rect x="7" y="8" width={w - 12} height={h - 16} rx="0.5"
-        fill="none" stroke="#C9A84C" strokeWidth="0.3" opacity="0.12" />
-      {[16, 22, 28, 34, 40, 46].map(y => (
-        <line key={y} x1="10" y1={y} x2={16 + (y * 5 % 10)} y2={y}
-          stroke="#8B7A5A" strokeWidth="0.35" opacity="0.2" />
-      ))}
-      <circle cx="17" cy={h - 10} r="2.5" fill="#C9A84C" opacity="0.3" />
+      <rect x="6" y="10" width={w - 10} height={h - 20} rx="1" fill="none" stroke={edge} strokeWidth="0.3" opacity="0.15" />
+      <rect x={w - 14} y="11" width="7" height="5" rx="0.5" fill="#6B4030" opacity="0.2" />
+      <line x1={w - 13} y1="13" x2={w - 8} y2="13" stroke="#6B4030" strokeWidth="0.3" opacity="0.15" />
+      <line x1={w - 12} y1="14.5" x2={w - 9} y2="14.5" stroke="#6B4030" strokeWidth="0.3" opacity="0.12" />
     </>,
   ];
 
   return (
-    <svg viewBox={`0 0 ${w + 4} ${h + 4}`} width={w + 4} height={h + 4} style={{ overflow: 'visible' }}>
-      {/* Paper shadow */}
-      <path d={path} fill="rgba(0,0,0,0.08)" transform="translate(1.5, 2)" />
-      {/* Paper body with wavy edges */}
-      <path d={path} fill={paperFill}
-        stroke="rgba(160,140,100,0.3)" strokeWidth="0.5" />
-      {/* Aged paper texture — subtle gradient */}
-      <path d={path} fill="url(#parchGrad)" opacity="0.15" />
-      {/* Scribble content */}
-      {scribbles[variant % 4]}
+    <svg viewBox={`0 0 ${w + 2} ${h + 2}`} width={w + 2} height={h + 2} style={{ overflow: 'visible' }}>
       <defs>
-        <linearGradient id="parchGrad" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%" stopColor="#A08050" />
-          <stop offset="50%" stopColor="transparent" />
-          <stop offset="100%" stopColor="#8B7040" />
+        {/* Aged parchment gradient */}
+        <linearGradient id={gid} x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0%" stopColor={paper} />
+          <stop offset="30%" stopColor={fills[(variant + 1) % 4]} />
+          <stop offset="70%" stopColor={paper} />
+          <stop offset="100%" stopColor={darks[(variant + 2) % 4]} />
         </linearGradient>
       </defs>
+
+      {/* Drop shadow */}
+      <path d={`${topEdge} L ${w - 1} ${h - 6} ${botEdge} L 3 8 Z`}
+        fill="rgba(0,0,0,0.12)" transform="translate(2, 2.5)" />
+
+      {/* Main parchment body — aged, uneven edges */}
+      <path d={`${topEdge} L ${w - 1} ${h - 6} ${botEdge} L 3 8 Z`}
+        fill={`url(#${gid})`} stroke={edge} strokeWidth="0.4" opacity="0.95" />
+
+      {/* Coffee stain / age spots */}
+      <circle cx={10 + variant * 4} cy={20 + variant * 8} r={4 + variant} fill={edge} opacity="0.06" />
+      <circle cx={w - 8 - variant * 2} cy={h - 20 + variant * 3} r={3} fill={darks[(variant + 1) % 4]} opacity="0.05" />
+
+      {/* Top scroll roll — gives a cylinder effect */}
+      <ellipse cx={w / 2 + 1} cy={8 + wv(0)} rx={w / 2 - 1} ry={rollH / 2}
+        fill={edge} opacity="0.5" />
+      <ellipse cx={w / 2 + 1} cy={8 + wv(0)} rx={w / 2 - 1} ry={rollH / 2 - 1}
+        fill={paper} opacity="0.7" />
+      <ellipse cx={w / 2 + 1} cy={8 + wv(0) - 0.5} rx={w / 2 - 4} ry={1}
+        fill="rgba(255,255,255,0.15)" />
+
+      {/* Bottom scroll roll */}
+      <ellipse cx={w / 2 + 1} cy={h - 6 + wv(5)} rx={w / 2 - 1} ry={rollH / 2}
+        fill={edge} opacity="0.5" />
+      <ellipse cx={w / 2 + 1} cy={h - 6 + wv(5)} rx={w / 2 - 1} ry={rollH / 2 - 1}
+        fill={paper} opacity="0.7" />
+      <ellipse cx={w / 2 + 1} cy={h - 6 + wv(5) + 0.5} rx={w / 2 - 4} ry={1}
+        fill="rgba(255,255,255,0.12)" />
+
+      {/* Flowing cursive handwriting */}
+      {cursiveLines(variant * 17 + 3)}
+
+      {/* Variant-specific decoration (seal, stamp, etc.) */}
+      {decorations[variant % 4]}
     </svg>
   );
 }

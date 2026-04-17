@@ -1207,8 +1207,8 @@ export const bookConfigs: BookConfig[] = [
     title: 'The Báb: The Herald of the Day of Days',
     author: 'H.M. Balyuzi',
     category: 'other',
-    description: "A detailed biography of the Báb, covering His ancestry, early life, Declaration, imprisonments, examinations, and martyrdom, drawing on Persian and Arabic primary sources. Includes maps, genealogy charts, and extensive scholarly notes.",
-    urlPath: 'A comprehensive biography of the Forerunner of the Bahá'í Faith by one of its foremost scholars. It examines the Báb's brief six-year ministry (1844–50) during nineteenth-century Iran, drawing extensively on official documents and family archives.',
+    description: "A comprehensive biography of the Forerunner of the Bah\u00e1'\u00ed Faith by one of its foremost scholars. It examines the B\u00e1b's brief six-year ministry (1844\u201350) during nineteenth-century Iran, drawing extensively on official documents and family archives.",
+    urlPath: 'balyuzi-the-bab',
     chapterCount: 13,
     seedChapters: [
       { id: 'balyuzi-the-bab-1', title: 'Prologue', urlSegment: '1' },

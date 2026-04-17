@@ -233,119 +233,114 @@ function spawnLetter(w: number, h: number, edge?: number): LetterState {
 }
 
 function LetterSVG({ variant, time }: { variant: number; time: number }) {
-  // 1800s scroll — fully wavy body with 3D curvature shading, no crossing lines
-  const heights = [78, 88, 72, 82];
-  const h = heights[variant % 4];
-  const w = 38;
-  const gid = `pg${variant}`;
+  // 1800s folded letter — rectangular envelope with triangular flap, wax seal,
+  // a few short address lines, aged paper. Edges gently undulate in the wind.
+  const w = 52;
+  const h = 36 + (variant % 3) * 4; // slightly varied proportions
+  const gid = `ltr${variant}`;
 
-  // Animated wave function — drives all edge undulation + 3D shading
   const wt = time * 0.03 + variant * 2.5;
-  const wave = (i: number, amp: number) => Math.sin(wt + i * 0.9) * amp;
+  const wv = (i: number, a: number) => Math.sin(wt + i * 0.9) * a;
 
-  // Aged parchment tones
-  const fills = ['#C8B078', '#BFA86C', '#C4AA70', '#B8A068'];
-  const darks = ['#A08050', '#988048', '#9C8450', '#907848'];
-  const paper = fills[variant % 4];
-  const edge = darks[variant % 4];
+  // Aged paper palette
+  const papers = ['#D4C49C', '#CCBA90', '#D0C098', '#C8B688'];
+  const edges  = ['#A89060', '#9C8458', '#A08A5C', '#948050'];
+  const paper = papers[variant % 4];
+  const edgeC = edges[variant % 4];
 
-  // Fully wavy body path — all 4 edges undulate
-  const lw1 = wave(0, 2.5), lw2 = wave(1, 3), lw3 = wave(2, 2.5);
-  const rw1 = wave(3, 2.5), rw2 = wave(4, 3), rw3 = wave(5, 2.5);
-  const tw1 = wave(6, 2), tw2 = wave(7, 1.5);
-  const bw1 = wave(8, 2), bw2 = wave(9, 1.5);
+  // Wavy envelope body — all edges gently undulate
+  const body = `
+    M ${2 + wv(0, 1.5)} ${4 + wv(1, 1)}
+    Q ${w * 0.5} ${3 + wv(2, 1.2)} ${w - 2 + wv(3, 1.5)} ${4 + wv(4, 1)}
+    Q ${w - 1 + wv(5, 1)} ${h * 0.5} ${w - 2 + wv(6, 1.5)} ${h - 2 + wv(7, 1)}
+    Q ${w * 0.5} ${h - 1 + wv(8, 1.2)} ${2 + wv(9, 1.5)} ${h - 2 + wv(10, 1)}
+    Q ${1 + wv(11, 1)} ${h * 0.5} ${2 + wv(0, 1.5)} ${4 + wv(1, 1)}
+    Z`;
 
-  const bodyPath = `
-    M ${4 + lw1} ${10 + tw1}
-    Q ${3 + lw1} ${h * 0.3} ${3.5 + lw2} ${h * 0.5}
-    Q ${3 + lw2} ${h * 0.7} ${4 + lw3} ${h - 8 + bw1}
-    Q ${w * 0.3} ${h - 5 + bw1} ${w * 0.5} ${h - 6 + bw2}
-    Q ${w * 0.7} ${h - 5 + bw2} ${w - 2 + rw3} ${h - 8 + bw1}
-    Q ${w - 1 + rw2} ${h * 0.7} ${w - 1.5 + rw2} ${h * 0.5}
-    Q ${w - 1 + rw1} ${h * 0.3} ${w - 2 + rw1} ${10 + tw2}
-    Q ${w * 0.7} ${8 + tw2} ${w * 0.5} ${9 + tw1}
-    Q ${w * 0.3} ${8 + tw1} ${4 + lw1} ${10 + tw1}
-    Z
-  `;
+  // Triangular envelope flap (back) — the pointed flap that folds down
+  // Its tip points down toward the centre of the envelope
+  const flapTipY = h * 0.52 + wv(12, 2);
+  const flap = `
+    M ${3 + wv(0, 1)} ${5 + wv(1, 0.8)}
+    Q ${w * 0.25 + wv(13, 1)} ${flapTipY * 0.5} ${w * 0.5 + wv(14, 0.8)} ${flapTipY}
+    Q ${w * 0.75 + wv(15, 1)} ${flapTipY * 0.5} ${w - 3 + wv(3, 1)} ${5 + wv(4, 0.8)}
+    Z`;
 
-  // 3D curvature bands — light/dark strips that follow the wave to simulate paper curling
-  const curveBands = [];
-  for (let i = 0; i < 4; i++) {
-    const frac = 0.2 + i * 0.2;
-    const y = 10 + frac * (h - 18);
-    const waveOffset = wave(i + 10, 2);
-    const isLight = i % 2 === 0;
-    curveBands.push(
-      <path key={i}
-        d={`M ${4 + wave(i, 2)} ${y + waveOffset} Q ${w * 0.5} ${y + waveOffset + wave(i + 5, 3)} ${w - 2 + wave(i + 3, 2)} ${y + waveOffset}`}
-        fill="none"
-        stroke={isLight ? 'rgba(255,255,240,0.12)' : 'rgba(80,60,30,0.08)'}
-        strokeWidth={isLight ? 8 : 6}
-        strokeLinecap="round"
-      />
-    );
-  }
+  // Inner fold shadow — the diagonal creases from corners to flap tip
+  const foldL = `M ${4 + wv(0, 1)} ${h - 3 + wv(10, 0.8)} L ${w * 0.5 + wv(14, 0.6)} ${flapTipY + 2}`;
+  const foldR = `M ${w - 4 + wv(6, 1)} ${h - 3 + wv(7, 0.8)} L ${w * 0.5 + wv(14, 0.6)} ${flapTipY + 2}`;
 
-  // Scroll roll height
-  const rollH = 5;
-  const topY = 10 + (tw1 + tw2) * 0.5;
-  const botY = h - 7 + (bw1 + bw2) * 0.5;
+  // Wax seal position — on the flap tip
+  const sealX = w * 0.5 + wv(14, 0.5);
+  const sealY = flapTipY - 1;
+  const sealR = 4 + variant * 0.3;
+  const sealColors = [
+    ['#8B1A1A', '#A52828', '#C04040'], // dark red
+    ['#8B1A1A', '#A52828', '#C04040'], // dark red
+    ['#8B6B1A', '#A58028', '#C9A84C'], // gold
+    ['#8B1A1A', '#A52828', '#C04040'], // dark red
+  ];
+  const [sOuter, sMid, sInner] = sealColors[variant % 4];
 
-  // Wax seal — only on some variants, no crossing lines
-  const seals = [
-    <><circle cx={w - 10} cy={h - 16} r="4" fill="#8B2020" opacity="0.55" />
-      <circle cx={w - 10} cy={h - 16} r="2.2" fill="#A03030" opacity="0.45" /></>,
-    <><circle cx={w - 10} cy={h - 16} r="3.5" fill="#B8963C" opacity="0.5" />
-      <circle cx={w - 10} cy={h - 16} r="1.8" fill="#C9A84C" opacity="0.45" /></>,
-    null,
-    <><circle cx={w - 10} cy={h - 16} r="3" fill="#8B2020" opacity="0.5" />
-      <circle cx={w - 10} cy={h - 16} r="1.5" fill="#A03030" opacity="0.4" /></>,
+  // Address lines — 2-3 short wavy strokes (recipient name/city), not crossing the whole letter
+  const addrY = flapTipY + 8 + wv(16, 0.5);
+  const addrLines = [
+    `M ${w * 0.25} ${addrY} Q ${w * 0.35} ${addrY - 0.8} ${w * 0.55} ${addrY}`,
+    `M ${w * 0.28} ${addrY + 4.5} Q ${w * 0.4} ${addrY + 3.8} ${w * 0.62} ${addrY + 4.5}`,
+    ...(variant % 2 === 0 ? [`M ${w * 0.3} ${addrY + 9} Q ${w * 0.42} ${addrY + 8.3} ${w * 0.52} ${addrY + 9}`] : []),
   ];
 
   return (
-    <svg viewBox={`0 0 ${w + 4} ${h + 4}`} width={w + 4} height={h + 4} style={{ overflow: 'visible' }}>
+    <svg viewBox={`0 0 ${w + 4} ${h + 6}`} width={w + 4} height={h + 6} style={{ overflow: 'visible' }}>
       <defs>
-        <linearGradient id={gid} x1="0.1" y1="0" x2="0.9" y2="1">
+        <linearGradient id={gid} x1="0" y1="0" x2="0.6" y2="1">
           <stop offset="0%" stopColor={paper} />
-          <stop offset="40%" stopColor={fills[(variant + 1) % 4]} />
-          <stop offset="60%" stopColor={paper} />
-          <stop offset="100%" stopColor={darks[(variant + 2) % 4]} />
+          <stop offset="50%" stopColor={papers[(variant + 1) % 4]} />
+          <stop offset="100%" stopColor={edges[(variant + 2) % 4]} />
         </linearGradient>
-        <clipPath id={`clip${variant}`}><path d={bodyPath} /></clipPath>
+        <linearGradient id={`${gid}f`} x1="0.5" y1="0" x2="0.5" y2="1">
+          <stop offset="0%" stopColor={paper} />
+          <stop offset="100%" stopColor={edges[variant % 4]} />
+        </linearGradient>
+        <clipPath id={`${gid}c`}><path d={body} /></clipPath>
       </defs>
 
       {/* Drop shadow */}
-      <path d={bodyPath} fill="rgba(0,0,0,0.15)" transform="translate(2.5, 3)" />
+      <path d={body} fill="rgba(0,0,0,0.18)" transform="translate(2, 2.5)" />
 
-      {/* Main parchment body */}
-      <path d={bodyPath} fill={`url(#${gid})`} stroke={edge} strokeWidth="0.5" />
+      {/* Envelope body */}
+      <path d={body} fill={`url(#${gid})`} stroke={edgeC} strokeWidth="0.5" />
 
-      {/* 3D curvature shading bands (clipped to body) */}
-      <g clipPath={`url(#clip${variant})`}>
-        {curveBands}
-        {/* Age spots */}
-        <circle cx={12 + variant * 3} cy={25 + variant * 6} r={5} fill={edge} opacity="0.05" />
-        <circle cx={w - 6 - variant * 2} cy={h - 22} r={3.5} fill={darks[(variant + 1) % 4]} opacity="0.04" />
+      {/* Inner fold creases (subtle diagonal shadows) */}
+      <g clipPath={`url(#${gid}c)`}>
+        <path d={foldL} fill="none" stroke={edgeC} strokeWidth="0.4" opacity="0.15" />
+        <path d={foldR} fill="none" stroke={edgeC} strokeWidth="0.4" opacity="0.15" />
+        {/* Subtle 3D shading — a light band across the middle */}
+        <path d={`M 2 ${h * 0.45 + wv(17, 1.5)} Q ${w * 0.5} ${h * 0.42 + wv(18, 2)} ${w - 2} ${h * 0.45 + wv(19, 1.5)}`}
+          fill="none" stroke="rgba(255,255,240,0.1)" strokeWidth="10" />
+        {/* Age spot */}
+        <circle cx={w * 0.7} cy={h * 0.7} r={3} fill={edgeC} opacity="0.04" />
       </g>
 
-      {/* Top scroll roll */}
-      <ellipse cx={w / 2 + 1} cy={topY} rx={w / 2} ry={rollH / 2 + 0.5}
-        fill={edge} opacity="0.55" />
-      <ellipse cx={w / 2 + 1} cy={topY} rx={w / 2} ry={rollH / 2}
-        fill={paper} opacity="0.75" />
-      <ellipse cx={w / 2 + 1} cy={topY - 0.8} rx={w / 2 - 3} ry={1.2}
-        fill="rgba(255,255,240,0.2)" />
+      {/* Triangular flap — slightly darker, shows depth */}
+      <path d={flap} fill={`url(#${gid}f)`} stroke={edgeC} strokeWidth="0.4" opacity="0.85" />
+      {/* Flap shadow along the fold line */}
+      <path d={`M ${4 + wv(0, 1)} ${5.5 + wv(1, 0.8)} Q ${w * 0.5} ${6.5 + wv(2, 0.5)} ${w - 4 + wv(3, 1)} ${5.5 + wv(4, 0.8)}`}
+        fill="none" stroke={edgeC} strokeWidth="0.6" opacity="0.12" />
 
-      {/* Bottom scroll roll */}
-      <ellipse cx={w / 2 + 1} cy={botY} rx={w / 2} ry={rollH / 2 + 0.5}
-        fill={edge} opacity="0.55" />
-      <ellipse cx={w / 2 + 1} cy={botY} rx={w / 2} ry={rollH / 2}
-        fill={paper} opacity="0.75" />
-      <ellipse cx={w / 2 + 1} cy={botY + 0.8} rx={w / 2 - 3} ry={1.2}
-        fill="rgba(255,255,240,0.15)" />
+      {/* Wax seal — on the flap tip */}
+      <circle cx={sealX} cy={sealY} r={sealR + 1} fill={sOuter} opacity="0.7" />
+      <circle cx={sealX} cy={sealY} r={sealR} fill={sMid} opacity="0.75" />
+      <circle cx={sealX} cy={sealY} r={sealR * 0.55} fill={sInner} opacity="0.5" />
+      {/* Seal highlight */}
+      <ellipse cx={sealX - 1} cy={sealY - 1.2} rx={sealR * 0.4} ry={sealR * 0.25}
+        fill="rgba(255,255,255,0.15)" />
 
-      {/* Wax seal (some variants only) */}
-      {seals[variant % 4]}
+      {/* Address lines — short handwriting strokes */}
+      {addrLines.map((d, i) => (
+        <path key={i} d={d} fill="none" stroke="#4A3820" strokeWidth="0.6"
+          opacity={0.3 - i * 0.04} strokeLinecap="round" />
+      ))}
     </svg>
   );
 }

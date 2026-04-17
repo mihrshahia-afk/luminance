@@ -1100,7 +1100,8 @@ export const bookConfigs: BookConfig[] = [
     title: 'The Priceless Pearl',
     author: 'Rúḥíyyih Khánum',
     category: 'other',
-    description: "The definitive biography of Shoghi Effendi, Guardian of the Bahá'An appraisal of the life and work of Shoghi Effendi, the Guardian and World Head of the Bahá'í Faith for thirty-six years. Written by his widow, who served as his personal secretary, the narrative chronicles significant events marked by both sorrow and drama, victory and crisis.'priceless-pearl',
+    description: "An appraisal of the life and work of Shoghi Effendi, the Guardian and World Head of the Bah\u00e1'\u00ed Faith for thirty-six years. Written by his widow, who served as his personal secretary, the narrative chronicles significant events marked by both sorrow and drama, victory and crisis.",
+    urlPath: 'priceless-pearl',
     chapterCount: 16,
     seedChapters: [
       { id: 'priceless-pearl-1', title: 'The Childhood and Youth of Shoghi Effendi', urlSegment: '1' },
@@ -1194,8 +1195,8 @@ export const bookConfigs: BookConfig[] = [
     title: 'Muḥammad and the Course of Islám',
     author: 'H.M. Balyuzi',
     category: 'other',
-    description: "A comprehensive study of the life of the Prophet Muḥammad and the subsequent history of Islám through the centuries — from its founding in seventh-century Arabia to the rise and fall of the Ottoman and Safavid empires.",
-    urlPath: 'A sympathetic account of a world religion whose adherents today number over a billion. Contains a full biography of the Prophet and a history of Islám from the years of His mission to the nineteenth century.',
+    description: "A sympathetic account of a world religion whose adherents today number over a billion. Contains a full biography of the Prophet and a history of Isl\u00e1m from the years of His mission to the nineteenth century.",
+    urlPath: 'muhammad-islam',
     chapterCount: 37,
     seedChapters: [
       { id: 'muhammad-islam-1', title: 'Introduction', urlSegment: '1' },

@@ -284,7 +284,7 @@ function LetterSVG({ variant }: { variant: number }) {
 }
 
 export function LettersCard({ label }: { label: string }) {
-  const containerRef = useRef<HTMLDivElement>(null);
+  const containerRef = useRef<HTMLAnchorElement>(null);
   const stateRef = useRef<LetterState[]>([]);
   const mouseRef = useRef({ x: -999, y: -999, prevX: -999, prevY: -999, inside: false });
   const rafRef = useRef(0);

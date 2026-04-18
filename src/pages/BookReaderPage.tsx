@@ -502,7 +502,7 @@ export default function BookReaderPage() {
 
         {/* ─── Cover / Book Opening ─── */}
         {showCover && (
-          <div className={`flex flex-col items-center justify-center px-4 py-12 sm:py-16 min-h-[80vh] ${coverOpening ? 'book-opening-zoom' : ''}`}>
+          <div className={`flex flex-col items-center justify-center px-4 py-8 sm:py-12 min-h-[70vh] ${coverOpening ? 'book-opening-zoom' : ''}`}>
             {/* Book container with 3D perspective */}
             <div
               className={`book-3d-container relative ${coverOpening ? 'cover-opening' : 'group cursor-pointer'}`}
@@ -577,21 +577,18 @@ export default function BookReaderPage() {
                   {progress ? ` · ${progress.chaptersRead.length} read` : ''}
                 </p>
 
-                {/* Expandable description */}
+                {/* Description — visible immediately, truncated, expandable */}
                 {config.description && (
-                  <div className="mt-6 max-w-md mx-auto w-full">
-                    <div className="overflow-hidden transition-all duration-500 ease-in-out"
-                      style={{ maxHeight: descExpanded ? '500px' : '0px', opacity: descExpanded ? 1 : 0 }}>
-                      <p className="text-sm text-secondary font-reading leading-relaxed m-0 px-2 pb-2 text-center">
-                        {config.description}
-                      </p>
-                    </div>
+                  <div className="mt-5 max-w-sm mx-auto w-full text-center">
+                    <p className={`text-xs sm:text-sm text-secondary/70 font-reading leading-relaxed m-0 px-1 transition-all duration-400 ${descExpanded ? '' : 'line-clamp-2'}`}>
+                      {config.description}
+                    </p>
                     <button
                       onClick={(e) => { e.preventDefault(); e.stopPropagation(); setDescExpanded(!descExpanded); }}
-                      className="flex items-center gap-1 mx-auto mt-1 px-3 py-1.5 text-[0.65rem] text-muted/60 font-body bg-transparent border-none cursor-pointer hover:text-gold transition-colors"
+                      className="inline-flex items-center gap-0.5 mt-1.5 px-2 py-1 text-[0.6rem] text-muted/50 font-body bg-transparent border-none cursor-pointer hover:text-gold transition-colors"
                     >
-                      <span>{descExpanded ? 'Hide description' : 'About this book'}</span>
-                      <ChevronDown size={12} style={{
+                      <span>{descExpanded ? 'Less' : 'More'}</span>
+                      <ChevronDown size={10} style={{
                         transform: descExpanded ? 'rotate(180deg)' : 'rotate(0deg)',
                         transition: 'transform 0.3s ease',
                       }} />

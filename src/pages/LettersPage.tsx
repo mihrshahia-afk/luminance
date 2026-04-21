@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import { ScrollText, Search, Download, MessageSquare } from 'lucide-react';
 import { getAllLetters, runAutoDiscovery } from '../data/letterDiscovery';
@@ -22,13 +22,24 @@ export default function LettersPage() {
     }).catch(() => setDiscovering(false));
   }, []);
 
-  const filtered = allLetters
-    .filter(l =>
-      l.title.toLowerCase().includes(filter.toLowerCase()) ||
-      l.recipient.toLowerCase().includes(filter.toLowerCase()) ||
-      l.date.includes(filter)
-    )
-    .sort((a, b) => b.date.localeCompare(a.date));
+  const filtered = useMemo(() => {
+    const q = filter.trim().toLowerCase();
+    if (!q) return allLetters.sort((a, b) => b.date.localeCompare(a.date));
+    return allLetters
+      .filter(l => {
+        // Search title, recipient, date, and formatted date (e.g. "April", "2026")
+        const formattedDate = new Date(l.date + 'T00:00:00').toLocaleDateString('en-US', {
+          year: 'numeric', month: 'long', day: 'numeric',
+        }).toLowerCase();
+        return (
+          l.title.toLowerCase().includes(q) ||
+          l.recipient.toLowerCase().includes(q) ||
+          l.date.includes(q) ||
+          formattedDate.includes(q)
+        );
+      })
+      .sort((a, b) => b.date.localeCompare(a.date));
+  }, [allLetters, filter]);
 
   const formatDate = (date: string) => {
     return new Date(date + 'T00:00:00').toLocaleDateString('en-US', {

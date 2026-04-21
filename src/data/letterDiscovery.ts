@@ -15,8 +15,6 @@ async function proxyFetch(url: string): Promise<string> {
   return r.text();
 }
 const DISCOVERED_KEY = 'luminance-discovered-letters';
-const LAST_CHECK_KEY = 'luminance-discovery-last-check';
-const CHECK_INTERVAL_HOURS = 24;
 
 function getDiscovered(): LetterEntry[] {
   try {
@@ -32,12 +30,8 @@ function saveDiscovered(letters: LetterEntry[]) {
   } catch {}
 }
 
-function isDue(): boolean {
-  const last = localStorage.getItem(LAST_CHECK_KEY);
-  if (!last) return true;
-  const hours = (Date.now() - new Date(last).getTime()) / 3_600_000;
-  return hours >= CHECK_INTERVAL_HOURS;
-}
+// Guard against running multiple times in the same session
+let discoveryRanThisSession = false;
 
 export function getDiscoveredLetters(): LetterEntry[] {
   return getDiscovered();
@@ -50,64 +44,61 @@ export function getAllLetters(): LetterEntry[] {
 }
 
 export async function runAutoDiscovery(): Promise<{ found: number }> {
-  if (!isDue()) return { found: 0 };
+  if (discoveryRanThisSession) return { found: 0 };
+  discoveryRanThisSession = true;
 
   try {
     const html = await proxyFetch(MESSAGES_URL);
-    const doc = new DOMParser().parseFromString(html, 'text/html');
 
+    // Parse the HTML — extract date codes directly from the raw HTML
+    // rather than relying on DOMParser + querySelectorAll, which can
+    // behave differently across browsers with relative URLs.
+    const linkPattern = /href="[^"]*?(\d{8}_\d{3})[^"]*"/g;
     const staticIds = new Set(letterIndex.map(l => l.id));
     const existingDiscovered = new Map(getDiscovered().map(l => [l.urlCode, l]));
     const newLetters: LetterEntry[] = [];
     const seen = new Set<string>();
 
-    // Links can be relative (e.g. "20260421_001/1") or absolute
-    const linkPattern = /(\d{8}_\d{3})/;
-
-    doc.querySelectorAll('a[href]').forEach(el => {
-      const href = el.getAttribute('href') || '';
-      const match = href.match(linkPattern);
-      if (!match) return;
-
+    let match;
+    while ((match = linkPattern.exec(html)) !== null) {
       const urlCode = match[1];
-      if (seen.has(urlCode)) return;
+      if (seen.has(urlCode)) continue;
       seen.add(urlCode);
 
       const dateStr = urlCode.substring(0, 8);
       const id = `uhj-${dateStr}`;
       const date = `${dateStr.substring(0, 4)}-${dateStr.substring(4, 6)}-${dateStr.substring(6, 8)}`;
 
-      if (staticIds.has(id) || existingDiscovered.has(urlCode)) return;
+      if (staticIds.has(id) || existingDiscovered.has(urlCode)) continue;
 
-      const rawTitle = el.textContent?.trim() || '';
+      // Extract title from surrounding <a> tag text — find the tag that contains this href
+      const tagPattern = new RegExp(`<a[^>]*href="[^"]*${urlCode}[^"]*"[^>]*>([^<]*)</a>`, 'i');
+      const tagMatch = html.match(tagPattern);
+      const rawTitle = tagMatch?.[1]?.trim() || '';
       const title = rawTitle.length > 5 ? rawTitle : `Letter of ${date}`;
 
-      // Try to infer recipient from surrounding list item
+      // Try to extract recipient from the same table row
+      const rowPattern = new RegExp(`<tr[^>]*id="${urlCode}"[^>]*>([\\s\\S]*?)</tr>`, 'i');
+      const rowMatch = html.match(rowPattern);
       let recipient = "The Bahá'í World";
-      const li = el.closest('li, tr, .list-item');
-      if (li) {
-        const full = li.textContent || '';
-        const toMatch = full.match(/to\s+([^,.\n]{5,60})/i);
+      if (rowMatch) {
+        const toMatch = rowMatch[1].match(/to\s+([^<,]{5,80})/i);
         if (toMatch) recipient = toMatch[1].trim();
       }
 
       newLetters.push({ id, title, date, recipient, urlCode });
-    });
-
-    // Only mark as checked if we successfully parsed at least some links
-    // (even if none are new). This way failed fetches don't block retries.
-    if (seen.size > 0) {
-      localStorage.setItem(LAST_CHECK_KEY, new Date().toISOString());
     }
 
     if (newLetters.length > 0) {
       const merged = [...Array.from(existingDiscovered.values()), ...newLetters];
       saveDiscovered(merged);
+      console.log(`[Luminance] Discovered ${newLetters.length} new letter(s)`);
     }
 
     return { found: newLetters.length };
   } catch (err) {
     console.warn('[Luminance] Letter discovery failed:', err);
+    discoveryRanThisSession = false; // allow retry on next navigation
     return { found: 0 };
   }
 }

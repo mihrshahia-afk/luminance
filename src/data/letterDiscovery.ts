@@ -14,7 +14,7 @@ async function proxyFetch(url: string): Promise<string> {
   if (!r.ok) throw new Error(`HTTP ${r.status}`);
   return r.text();
 }
-const DISCOVERED_KEY = 'luminance-discovered-letters';
+const DISCOVERED_KEY = 'luminance-discovered-letters-v2';
 
 function getDiscovered(): LetterEntry[] {
   try {
@@ -82,8 +82,8 @@ export async function runAutoDiscovery(): Promise<{ found: number }> {
       const rowMatch = html.match(rowPattern);
       let recipient = "The Bahá'í World";
       if (rowMatch) {
-        const toMatch = rowMatch[1].match(/to\s+([^<,]{5,80})/i);
-        if (toMatch) recipient = toMatch[1].trim();
+        const toMatch = rowMatch[1].match(/(to\s+[^<,]{5,80})/i);
+        if (toMatch) recipient = toMatch[1].trim().replace(/^to\s/i, 'To ');
       }
 
       newLetters.push({ id, title, date, recipient, urlCode });

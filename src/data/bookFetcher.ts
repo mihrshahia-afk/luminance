@@ -1,7 +1,19 @@
 import type { BookChapter, BookConfig } from './bookConfig';
 
-const PROXY = 'https://api.allorigins.win/raw?url=';
+const OWN_PROXY = '/api/proxy?url=';
+const FALLBACK_PROXY = 'https://api.allorigins.win/raw?url=';
 const BAHAI_ORG = 'https://www.bahai.org';
+
+async function proxyFetch(url: string): Promise<string> {
+  // Try our own Vercel serverless proxy first, fall back to allorigins
+  try {
+    const r = await fetch(`${OWN_PROXY}${encodeURIComponent(url)}`);
+    if (r.ok) return await r.text();
+  } catch { /* fall through */ }
+  const r = await fetch(`${FALLBACK_PROXY}${encodeURIComponent(url)}`);
+  if (!r.ok) throw new Error(`HTTP ${r.status}`);
+  return r.text();
+}
 const STRUCTURE_KEY = 'luminance-book-structure';
 const CONTENT_KEY = 'luminance-book-content';
 
@@ -92,7 +104,7 @@ export async function discoverChapters(config: BookConfig, lang = 'en'): Promise
 
   try {
     const tocUrl = `${BAHAI_ORG}/library/authoritative-texts/${config.urlPath}/`;
-    const html = await fetch(`${PROXY}${encodeURIComponent(tocUrl)}`).then(r => r.text());
+    const html = await proxyFetch(tocUrl);
     const doc = new DOMParser().parseFromString(html, 'text/html');
 
     // Look for links like /library/authoritative-texts/{urlPath}/N or /N/
@@ -176,10 +188,7 @@ export async function fetchChapter(urlPath: string, urlSegment: string, bookId?:
 
 
   const url = `${BAHAI_ORG}/library/authoritative-texts/${urlPath}/${urlSegment}/`;
-  const html = await fetch(`${PROXY}${encodeURIComponent(url)}`).then(r => {
-    if (!r.ok) throw new Error(`HTTP ${r.status}`);
-    return r.text();
-  });
+  const html = await proxyFetch(url);
 
   const doc = new DOMParser().parseFromString(html, 'text/html');
   const content = extractContent(doc);

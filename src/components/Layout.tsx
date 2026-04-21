@@ -1,13 +1,19 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Outlet, useLocation, NavLink } from 'react-router-dom';
 import { Menu, Home, BookOpen, Heart, ScrollText, Search, Compass } from 'lucide-react';
 import Sidebar from './Sidebar';
 import { useApp } from '../context/AppContext';
+import { runAutoDiscovery } from '../data/letterDiscovery';
 
 export default function Layout() {
   const location = useLocation();
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const { t } = useApp();
+
+  // Check for new UHJ letters on every app load (non-blocking, max once per 24h)
+  useEffect(() => {
+    runAutoDiscovery().catch(() => {});
+  }, []);
 
   const mobileNavItems = [
     { to: '/home', icon: Home, label: t.navHome },

@@ -1,8 +1,19 @@
 import type { LetterEntry } from './letterIndex';
 import { letterIndex } from './letterIndex';
 
-const PROXY = 'https://api.allorigins.win/raw?url=';
+const OWN_PROXY = '/api/proxy?url=';
+const FALLBACK_PROXY = 'https://api.allorigins.win/raw?url=';
 const MESSAGES_URL = 'https://www.bahai.org/library/authoritative-texts/the-universal-house-of-justice/messages/';
+
+async function proxyFetch(url: string): Promise<string> {
+  try {
+    const r = await fetch(`${OWN_PROXY}${encodeURIComponent(url)}`);
+    if (r.ok) return await r.text();
+  } catch { /* fall through */ }
+  const r = await fetch(`${FALLBACK_PROXY}${encodeURIComponent(url)}`);
+  if (!r.ok) throw new Error(`HTTP ${r.status}`);
+  return r.text();
+}
 const DISCOVERED_KEY = 'luminance-discovered-letters';
 const LAST_CHECK_KEY = 'luminance-discovery-last-check';
 const CHECK_INTERVAL_HOURS = 24;
@@ -42,7 +53,7 @@ export async function runAutoDiscovery(): Promise<{ found: number }> {
   if (!isDue()) return { found: 0 };
 
   try {
-    const html = await fetch(`${PROXY}${encodeURIComponent(MESSAGES_URL)}`).then(r => r.text());
+    const html = await proxyFetch(MESSAGES_URL);
     const doc = new DOMParser().parseFromString(html, 'text/html');
 
     const staticIds = new Set(letterIndex.map(l => l.id));

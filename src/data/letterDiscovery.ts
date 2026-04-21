@@ -61,9 +61,10 @@ export async function runAutoDiscovery(): Promise<{ found: number }> {
     const newLetters: LetterEntry[] = [];
     const seen = new Set<string>();
 
-    const linkPattern = /\/messages\/(\d{8}_\d{3})\//;
+    // Links can be relative (e.g. "20260421_001/1") or absolute
+    const linkPattern = /(\d{8}_\d{3})/;
 
-    doc.querySelectorAll('a[href*="/messages/"]').forEach(el => {
+    doc.querySelectorAll('a[href]').forEach(el => {
       const href = el.getAttribute('href') || '';
       const match = href.match(linkPattern);
       if (!match) return;
@@ -93,7 +94,11 @@ export async function runAutoDiscovery(): Promise<{ found: number }> {
       newLetters.push({ id, title, date, recipient, urlCode });
     });
 
-    localStorage.setItem(LAST_CHECK_KEY, new Date().toISOString());
+    // Only mark as checked if we successfully parsed at least some links
+    // (even if none are new). This way failed fetches don't block retries.
+    if (seen.size > 0) {
+      localStorage.setItem(LAST_CHECK_KEY, new Date().toISOString());
+    }
 
     if (newLetters.length > 0) {
       const merged = [...Array.from(existingDiscovered.values()), ...newLetters];
@@ -101,8 +106,8 @@ export async function runAutoDiscovery(): Promise<{ found: number }> {
     }
 
     return { found: newLetters.length };
-  } catch {
-    // Fail silently — auto-discovery is best-effort
+  } catch (err) {
+    console.warn('[Luminance] Letter discovery failed:', err);
     return { found: 0 };
   }
 }

@@ -14,10 +14,12 @@ export default function LettersPage() {
   const [discovering, setDiscovering] = useState(true);
 
   useEffect(() => {
+    // Re-read from localStorage in case Layout already discovered new letters
+    setAllLetters(getAllLetters());
     runAutoDiscovery().then(({ found }) => {
       if (found > 0) setAllLetters(getAllLetters());
       setDiscovering(false);
-    });
+    }).catch(() => setDiscovering(false));
   }, []);
 
   const filtered = allLetters

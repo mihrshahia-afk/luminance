@@ -1,8 +1,8 @@
 import { useState, useCallback, useEffect, useRef, useMemo } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { ArrowLeft, Star, MessageSquare, RefreshCw } from 'lucide-react';
-import { letterIndex } from '../data/letterIndex';
-import { fetchLetterContent } from '../data/letterFetcher';
+// letterIndex no longer needed — findLetter checks both static + discovered
+import { fetchLetterContent, findLetter } from '../data/letterFetcher';
 import { useApp } from '../context/AppContext';
 import AnnotationPanel from '../components/AnnotationPanel';
 import ReadingProgress from '../components/ReadingProgress';
@@ -123,7 +123,7 @@ export default function LetterReaderPage() {
   const [error, setError] = useState('');
   const scrollRef = useRef<HTMLDivElement>(null);
 
-  const letter = letterIndex.find(l => l.urlCode === letterId);
+  const letter = findLetter(letterId || '');
 
   useEffect(() => {
     if (!letter) return;

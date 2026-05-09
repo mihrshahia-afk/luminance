@@ -40,27 +40,45 @@ export interface Annotation {
   createdAt: string;
 }
 
-export type PrayerTopic =
-  | 'Daily Prayers'
-  | 'Morning'
-  | 'Evening'
-  | 'Obligatory Prayers'
-  | 'Unity'
-  | 'Love'
-  | 'Healing'
-  | 'Praise & Gratitude'
-  | 'Reliance on God'
-  | 'Tests & Difficulties'
-  | 'Steadfastness'
-  | 'Detachment'
-  | 'Forgiveness'
-  | 'Service & Teaching'
-  | 'Knowledge & Wisdom'
-  | 'Protection'
-  | 'Children'
-  | 'Family'
-  | 'Marriage'
-  | 'Departed Souls'
-  | 'Holy Days'
-  | 'Special Tablets'
-  | 'Teaching';
+export type PrayerTopic
+  = "Obligatory Prayers"
+  | "Aid and Assistance"
+  | "America"
+  | "Children"
+  | "Detachment"
+  | "Divine Springtime"
+  | "Evening"
+  | "Families"
+  | "Firmness in the Covenant"
+  | "Forgiveness"
+  | "Gatherings"
+  | "Grace at Table"
+  | "Healing"
+  | "Humanity"
+  | "Huqúqu'lláh"
+  | "Manifestation of God"
+  | "Marriage"
+  | "Morning"
+  | "Nearness to God"
+  | "Occasional Prayers"
+  | "Paradise"
+  | "Praise and Gratitude"
+  | "Prayers for Teaching from the Tablets of the Divine Plan"
+  | "Prison"
+  | "Protection"
+  | "Sacrifice"
+  | "Service"
+  | "Special Tablets"
+  | "Spiritual Assembly"
+  | "Spiritual Growth"
+  | "Steadfastness"
+  | "Teaching"
+  | "Tests and Difficulties"
+  | "The Departed"
+  | "The Fast"
+  | "The Fund"
+  | "Trials"
+  | "Triumph of the Cause"
+  | "Unity"
+  | "Women"
+  | "Youth";

@@ -7,19 +7,17 @@ import Card from '../components/Card';
 
 const TOPIC_GROUPS: { label: string; color: string; topics: PrayerTopic[] }[] = [
   { label: 'Obligatory & Daily', color: '#0B4F6C',
-    topics: ['Obligatory Prayers', 'Daily Prayers', 'Morning', 'Evening'] },
+    topics: ['Obligatory Prayers', 'Morning', 'Evening', 'Grace at Table', 'Occasional Prayers', 'The Fast'] },
   { label: 'Spiritual Life', color: '#7D9B8A',
-    topics: ['Praise & Gratitude', 'Love', 'Unity', 'Reliance on God', 'Detachment', 'Forgiveness'] },
+    topics: ['Praise and Gratitude', 'Nearness to God', 'Spiritual Growth', 'Detachment', 'Forgiveness', 'Sacrifice', 'Steadfastness', 'Firmness in the Covenant'] },
   { label: 'Strength & Support', color: '#8B6F47',
-    topics: ['Healing', 'Tests & Difficulties', 'Steadfastness', 'Protection', 'Knowledge & Wisdom'] },
+    topics: ['Aid and Assistance', 'Healing', 'Tests and Difficulties', 'Trials', 'Prison', 'Protection', 'Manifestation of God'] },
   { label: 'Community & Service', color: '#6B5B8A',
-    topics: ['Service & Teaching', 'Teaching', 'Children', 'Family'] },
-  { label: 'Life Events', color: '#C9A84C',
-    topics: ['Marriage', 'Departed Souls'] },
-  { label: 'Holy Days', color: '#9B6A8C',
-    topics: ['Holy Days'] },
-  { label: 'Special Tablets', color: '#A87C4E',
-    topics: ['Special Tablets'] },
+    topics: ['Service', 'Teaching', 'Prayers for Teaching from the Tablets of the Divine Plan', 'Gatherings', 'Spiritual Assembly', 'The Fund', "Huqúqu'lláh", 'Triumph of the Cause'] },
+  { label: 'People & Relationships', color: '#C9A84C',
+    topics: ['Children', 'Youth', 'Women', 'Families', 'Marriage', 'The Departed', 'Humanity'] },
+  { label: 'Special', color: '#A87C4E',
+    topics: ['America', 'Divine Springtime', 'Paradise', 'Special Tablets', 'Unity'] },
 ];
 
 const topicCounts = Object.fromEntries(

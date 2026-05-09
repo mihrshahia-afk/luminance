@@ -105,7 +105,8 @@ export interface TranslationStrings {
   topicGroupSpiritual: string;
   topicGroupStrength: string;
   topicGroupCommunity: string;
-  topicGroupSpecial: string;
+  topicGroupLifeEvents: string;
+  topicGroupSpecialTablets: string;
 
   // Letters page
   lettersTitle: string;
@@ -263,7 +264,8 @@ const en: TranslationStrings = {
   topicGroupSpiritual: 'Spiritual Life',
   topicGroupStrength: 'Strength & Support',
   topicGroupCommunity: 'Community & Service',
-  topicGroupSpecial: 'Special Occasions',
+  topicGroupLifeEvents: 'Life Events',
+  topicGroupSpecialTablets: 'Special Tablets',
 
   lettersTitle: 'Universal House of Justice Letters',
   lettersSubtitle: 'letters from 1963 to present \u2014 the complete record since the House of Justice was first established',
@@ -413,7 +415,8 @@ const fa: TranslationStrings = {
   topicGroupSpiritual: '\u062d\u06cc\u0627\u062a \u0631\u0648\u062d\u0627\u0646\u06cc',
   topicGroupStrength: '\u0642\u0648\u062a \u0648 \u062d\u0645\u0627\u06cc\u062a',
   topicGroupCommunity: '\u062c\u0627\u0645\u0639\u0647 \u0648 \u062e\u062f\u0645\u062a',
-  topicGroupSpecial: '\u0645\u0646\u0627\u0633\u0628\u062a\u200c\u0647\u0627\u06cc \u062e\u0627\u0635',
+  topicGroupLifeEvents: '\u0631\u0648\u06cc\u062f\u0627\u062f\u0647\u0627\u06cc \u0632\u0646\u062f\u06af\u06cc',
+  topicGroupSpecialTablets: '\u0627\u0644\u0648\u0627\u062d \u062e\u0627\u0635',
 
   lettersTitle: '\u0627\u0644\u0648\u0627\u062d \u0628\u06cc\u062a \u0627\u0644\u0639\u062f\u0644 \u0627\u0639\u0638\u0645',
   lettersSubtitle: '\u0627\u0644\u0648\u0627\u062d \u0627\u0632 \u0633\u0627\u0644 \u06f1\u06f9\u06f6\u06f3 \u062a\u0627 \u06a9\u0646\u0648\u0646',
@@ -563,7 +566,8 @@ const ar: TranslationStrings = {
   topicGroupSpiritual: '\u0627\u0644\u062d\u064a\u0627\u0629 \u0627\u0644\u0631\u0648\u062d\u064a\u0629',
   topicGroupStrength: '\u0627\u0644\u0642\u0648\u0629 \u0648\u0627\u0644\u062f\u0639\u0645',
   topicGroupCommunity: '\u0627\u0644\u0645\u062c\u062a\u0645\u0639 \u0648\u0627\u0644\u062e\u062f\u0645\u0629',
-  topicGroupSpecial: '\u0627\u0644\u0645\u0646\u0627\u0633\u0628\u0627\u062a \u0627\u0644\u062e\u0627\u0635\u0629',
+  topicGroupLifeEvents: '\u0623\u062d\u062f\u0627\u062b \u0627\u0644\u062d\u064a\u0627\u0629',
+  topicGroupSpecialTablets: '\u0627\u0644\u0623\u0644\u0648\u0627\u062d \u0627\u0644\u062e\u0627\u0635\u0629',
 
   lettersTitle: '\u0623\u0644\u0648\u0627\u062d \u0628\u064a\u062a \u0627\u0644\u0639\u062f\u0644 \u0627\u0644\u0623\u0639\u0638\u0645',
   lettersSubtitle: '\u0623\u0644\u0648\u0627\u062d \u0645\u0646 \u0639\u0627\u0645 \u0661\u0669\u0666\u0663 \u062d\u062a\u0649 \u0627\u0644\u0622\u0646',

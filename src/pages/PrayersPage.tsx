@@ -13,9 +13,11 @@ const TOPIC_GROUPS: { label: string; color: string; topics: PrayerTopic[] }[] = 
   { label: 'Strength & Support', color: '#8B6F47',
     topics: ['Healing', 'Tests & Difficulties', 'Steadfastness', 'Protection', 'Knowledge & Wisdom'] },
   { label: 'Community & Service', color: '#6B5B8A',
-    topics: ['Service & Teaching', 'Teaching', 'Children', 'Family', 'Marriage'] },
-  { label: 'Special Occasions', color: '#C9A84C',
-    topics: ['Departed Souls', 'Holy Days', 'Special Tablets'] },
+    topics: ['Service & Teaching', 'Teaching', 'Children', 'Family'] },
+  { label: 'Life Events', color: '#C9A84C',
+    topics: ['Marriage', 'Departed Souls', 'Holy Days'] },
+  { label: 'Special Tablets', color: '#A87C4E',
+    topics: ['Special Tablets'] },
 ];
 
 const topicCounts = Object.fromEntries(

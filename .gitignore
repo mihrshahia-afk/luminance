@@ -31,3 +31,11 @@ scripts/*.pdf
 scripts/*.html
 scripts/release-the-sun*.txt
 scripts/dawn-breakers*.txt
+scripts/.bahaiprayers-cache/
+# Scraped prayer content - tools commit, content stays local
+scripts/prayers-content.json
+scripts/prayers-index.json
+scripts/bahai-org-prayers.json
+scripts/thebahaiprayers-prayers.json
+scripts/existing-prayers.json
+scripts/tmp/

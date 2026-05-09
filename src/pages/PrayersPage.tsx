@@ -26,6 +26,11 @@ const topicCounts = Object.fromEntries(
   prayerTopics.map(t => [t, prayers.filter(p => p.topic === t).length])
 );
 
+// Hide topics with no prayers, and hide groups that become empty.
+const VISIBLE_GROUPS = TOPIC_GROUPS
+  .map(g => ({ ...g, topics: g.topics.filter(t => (topicCounts[t] ?? 0) > 0) }))
+  .filter(g => g.topics.length > 0);
+
 function TopicLanding({ onSelect }: { onSelect: (t: PrayerTopic) => void }) {
   return (
     <div className="flex-1 w-full px-4 py-10 sm:px-8 lg:px-12 xl:px-16 max-w-5xl mx-auto stagger-enter">
@@ -35,7 +40,7 @@ function TopicLanding({ onSelect }: { onSelect: (t: PrayerTopic) => void }) {
         <p className="text-sm text-muted m-0">Food for the soul</p>
       </div>
 
-      {TOPIC_GROUPS.map(group => (
+      {VISIBLE_GROUPS.map(group => (
         <div key={group.label} className="mb-10">
           <div className="category-divider" style={{ color: group.color }}>
             <span>{group.label}</span>

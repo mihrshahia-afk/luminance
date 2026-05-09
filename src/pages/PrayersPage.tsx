@@ -15,7 +15,9 @@ const TOPIC_GROUPS: { label: string; color: string; topics: PrayerTopic[] }[] = 
   { label: 'Community & Service', color: '#6B5B8A',
     topics: ['Service & Teaching', 'Teaching', 'Children', 'Family'] },
   { label: 'Life Events', color: '#C9A84C',
-    topics: ['Marriage', 'Departed Souls', 'Holy Days'] },
+    topics: ['Marriage', 'Departed Souls'] },
+  { label: 'Holy Days', color: '#9B6A8C',
+    topics: ['Holy Days'] },
   { label: 'Special Tablets', color: '#A87C4E',
     topics: ['Special Tablets'] },
 ];
